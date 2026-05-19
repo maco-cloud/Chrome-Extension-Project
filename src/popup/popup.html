@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuickDigest AI</title>
+    <link rel="stylesheet" href="../styles/popup.css" />
+  </head>
+  <body>
+    <div class="app" id="app">
+      <header class="header">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">Q</div>
+          <div class="brand-text">
+            <h1>QuickDigest AI</h1>
+            <p>Smart summaries in seconds</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button
+            class="icon-btn"
+            id="settingsBtn"
+            type="button"
+            title="Settings"
+            aria-label="Open settings"
+          >
+            &#9881;
+          </button>
+        </div>
+      </header>
+
+      <main class="main" id="main">
+        <div class="cta-row">
+          <button class="btn-primary" id="summarizeBtn" type="button">
+            Summarize this page
+          </button>
+        </div>
+
+        <div class="meta-row" id="metaRow" hidden>
+          <span class="chip" id="readingChip">— min read</span>
+          <span class="chip" id="charsChip">— chars</span>
+        </div>
+
+        <section class="skeleton-wrap" id="skeletonWrap" aria-hidden="true">
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+        </section>
+
+        <section class="empty-state" id="emptyState">
+          <h2>Ready when you are</h2>
+          <p>
+            Open any article or blog post, then tap
+            <strong>Summarize this page</strong> for key insights powered by
+            OpenAI.
+          </p>
+        </section>
+
+        <section class="results" id="results" aria-live="polite">
+          <article class="card">
+            <div class="card-header">
+              <span class="card-title">Quick Summary</span>
+              <button class="copy-btn" data-copy="summary" type="button">
+                Copy
+              </button>
+            </div>
+            <div class="card-body" id="summaryText"></div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <span class="card-title">Key Takeaways</span>
+              <button class="copy-btn" data-copy="takeaways" type="button">
+                Copy
+              </button>
+            </div>
+            <div class="card-body">
+              <ul id="takeawaysList"></ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <span class="card-title">Action Items</span>
+              <button class="copy-btn" data-copy="actions" type="button">
+                Copy
+              </button>
+            </div>
+            <div class="card-body">
+              <ul id="actionsList"></ul>
+            </div>
+          </article>
+        </section>
+
+        <section class="history-section" id="historySection" hidden>
+          <h2 class="section-title">Recent summaries</h2>
+          <div class="history-list" id="historyList"></div>
+        </section>
+      </main>
+
+      <footer class="footer">QuickDigest AI · Manifest V3</footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

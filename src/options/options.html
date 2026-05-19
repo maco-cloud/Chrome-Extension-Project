@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuickDigest AI Settings</title>
+    <link rel="stylesheet" href="../styles/options.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <h1>QuickDigest AI Settings</h1>
+        <p>
+          Manage your OpenAI API key, appearance, and summary history. Your API
+          key is stored locally on this device only.
+        </p>
+      </header>
+
+      <section class="panel">
+        <h2>OpenAI</h2>
+        <div class="field">
+          <label for="apiKey">API key</label>
+          <input
+            id="apiKey"
+            type="password"
+            placeholder="sk-..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <small>
+            Create a key at
+            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer"
+              >platform.openai.com</a
+            >. Never share your key.
+          </small>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="saveKeyBtn" type="button">
+            Save API key
+          </button>
+          <button class="btn btn-secondary" id="toggleKeyBtn" type="button">
+            Show key
+          </button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Appearance</h2>
+        <div class="toggle-row">
+          <span>Dark mode</span>
+          <label class="switch">
+            <input id="darkModeToggle" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>History</h2>
+        <p style="margin: 0 0 12px; color: var(--text-secondary); font-size: 14px">
+          Remove all locally saved summaries from this extension.
+        </p>
+        <button class="btn btn-danger" id="clearHistoryBtn" type="button">
+          Clear history
+        </button>
+      </section>
+
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <p class="version" id="version"></p>
+    </div>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

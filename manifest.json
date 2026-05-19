@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "QuickDigest AI",
+  "version": "1.0.0",
+  "description": "AI-powered webpage summaries with key takeaways and action items using OpenAI.",
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "QuickDigest AI",
+    "default_icon": {
+      "16": "src/assets/icons/icon16.png",
+      "48": "src/assets/icons/icon48.png",
+      "128": "src/assets/icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["https://api.openai.com/*"],
+  "icons": {
+    "16": "src/assets/icons/icon16.png",
+    "48": "src/assets/icons/icon48.png",
+    "128": "src/assets/icons/icon128.png"
+  }
+}
