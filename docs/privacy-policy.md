@@ -2,7 +2,14 @@
 
 **Last updated:** May 18, 2026
 
-QuickDigest AI ("the Extension") helps you summarize webpages using OpenAI. This policy explains what data the Extension handles and how.
+QuickDigest AI ("the Extension") summarizes webpages on your device. This policy explains what data is handled and how.
+
+## Summary
+
+- **No account required**
+- **No paid API keys**
+- **No cloud backend operated by us**
+- Summaries are generated locally and/or with Chrome on-device AI when available
 
 ## Data we process
 
@@ -10,47 +17,53 @@ When you click **Summarize this page**, the Extension:
 
 1. Reads the active tab URL and page title
 2. Extracts readable article text from the page
-3. Sends that text to OpenAI to generate a summary
+3. Generates a summary on your device using:
+   - **Local engine** (always available): algorithmic extractive summarization
+   - **Chrome on-device AI** (optional, when supported by your browser/device)
 
-The Extension does **not** operate its own backend servers.
+Article text is not sent to QuickDigest servers because we do not operate any.
+
+## Third-party processing
+
+- **Local engine:** processing stays entirely on your device.
+- **Chrome on-device AI:** when enabled and available, Chrome may process text using on-device models according to Google's policies. See [Google Chrome Privacy Notice](https://policies.google.com/privacy).
+
+We do **not** send your content to OpenAI or other paid third-party APIs.
 
 ## Data stored on your device
 
-The Extension stores the following locally using `chrome.storage.local`:
+Using `chrome.storage.local`, the Extension may store:
 
-- Your OpenAI API key (if you provide one)
 - Dark mode preference
+- Summary engine preference (auto / local / Chrome AI)
 - Recent summary history (title, URL, preview, summary content, timestamp)
 
-You can clear history or remove your API key at any time in Settings.
-
-## Third-party services
-
-Summaries are generated using the **OpenAI API**. Content you submit is processed according to [OpenAI's Privacy Policy](https://openai.com/policies/privacy-policy) and [Terms of Use](https://openai.com/policies/terms-of-use).
+You can clear history anytime in Settings.
 
 ## Data we do not collect
 
 The Extension does not:
 
+- Require sign-in
 - Sell your data
-- Run analytics trackers
-- Collect passwords, payment details, or form inputs
-- Access browsing history beyond the active tab you summarize
+- Run advertising trackers
+- Collect passwords, payment details, or form field contents
+- Upload page content to our servers
 
 ## Permissions
 
 | Permission | Why it is needed |
 |------------|------------------|
-| `storage` | Save API key, settings, and summary history locally |
+| `storage` | Save settings and summary history locally |
 | `activeTab` | Access the current tab only when you invoke the Extension |
 | `scripting` | Extract readable page content on demand |
-| `https://api.openai.com/*` | Send summarization requests to OpenAI |
+| `offscreen` | Run Chrome on-device AI summarizer when available |
 
 ## Security
 
-- API keys are stored locally on your device
-- Use a restricted OpenAI API key when possible
-- Do not share your API key
+- Processing is designed to stay on-device
+- Clear history removes saved summaries from local storage
+- Use current Chrome releases for best on-device AI support
 
 ## Children's privacy
 
@@ -58,7 +71,7 @@ The Extension is not directed to children under 13.
 
 ## Changes
 
-We may update this policy as the Extension evolves. Material changes will be reflected in the repository and Chrome Web Store listing.
+We may update this policy as the Extension evolves. Updates will be reflected in the repository and Chrome Web Store listing.
 
 ## Contact
 

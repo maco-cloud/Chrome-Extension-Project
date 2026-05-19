@@ -1,28 +1,29 @@
 # QuickDigest AI
 
-QuickDigest AI is a production-ready Chrome Extension (Manifest V3) that summarizes any article-like webpage using OpenAI. It delivers a polished popup experience with key takeaways, action items, reading-time estimates, clipboard copy, local history, and a full settings page.
+QuickDigest AI is a free Chrome Extension (Manifest V3) that summarizes article-like webpages **without sign-in, API keys, or paid services**. It works for everyone using on-device processing, with optional Chrome built-in AI when your browser supports it.
 
 ## Features
 
 - One-click summarization of the active tab
+- **No account, no credit card, no API key**
 - Intelligent content extraction (article/main prioritization, noise removal)
-- OpenAI-powered output:
+- Output sections:
   - Quick summary
   - Key takeaways
   - Action items
   - Reading time estimate
+- Summary engines:
+  - **Local (default fallback):** fast extractive summarization, works everywhere
+  - **Chrome on-device AI (optional):** uses Chrome Summarizer API when available
+  - **Auto:** tries Chrome AI first, falls back to local instantly
 - Premium Apple-inspired UI with dark mode
-- Skeleton loading states and toast notifications
-- Copy-to-clipboard for each section
-- Local summary history (max 20 items)
-- Settings page for API key, theme, and history management
-- Robust error handling (invalid key, rate limits, unsupported pages, timeouts, retries)
+- Copy-to-clipboard, local history, settings page
 
 ## Tech stack
 
 - Chrome Manifest V3
 - Vanilla HTML, CSS, JavaScript (ES modules)
-- Service worker background architecture
+- Service worker + optional offscreen document for Chrome AI
 - `chrome.storage.local` for settings and history
 
 ## Project structure
@@ -30,48 +31,50 @@ QuickDigest AI is a production-ready Chrome Extension (Manifest V3) that summari
 ```text
 Chrome-Extension-Project/
 ├── manifest.json
-├── docs/
-│   └── privacy-policy.md
+├── docs/privacy-policy.md
 └── src/
     ├── assets/icons/
-    ├── background/service-worker.js
+    ├── background/          service-worker.js, offscreen AI worker
     ├── content/extractor.js
     ├── options/
     ├── popup/
     ├── styles/
     └── utils/
+        ├── local-summarizer.js
+        ├── chrome-ai.js
+        └── summarizer.js
 ```
 
 ## Installation (unpacked)
 
-1. Clone this repository:
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/maco-cloud/Chrome-Extension-Project.git
    cd Chrome-Extension-Project
    ```
 
-2. Open Chrome and go to `chrome://extensions`
+2. Open Chrome → `chrome://extensions`
 3. Enable **Developer mode**
 4. Click **Load unpacked**
-5. Select the repository root folder (the folder containing `manifest.json`)
-
-## Configure OpenAI API key
-
-1. Create an API key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-2. Click the QuickDigest AI extension icon
-3. Open **Settings** (gear icon)
-4. Paste your API key and click **Save API key**
-
-Your key is stored locally via `chrome.storage.local` and never sent anywhere except OpenAI.
+5. Select the repository root (folder containing `manifest.json`)
 
 ## Usage
 
-1. Navigate to an article, blog post, or content-rich webpage
-2. Click the QuickDigest AI extension icon
+1. Open an article or blog post
+2. Click the QuickDigest AI icon
 3. Press **Summarize this page**
 4. Review summary cards and copy any section
-5. Reopen recent summaries from the history list
+
+No setup required. Optional: open **Settings** to choose summary engine or enable dark mode.
+
+## Summary engines explained
+
+| Engine | Description |
+|--------|-------------|
+| **Auto** | Best experience: Chrome on-device AI when available, otherwise local |
+| **Local** | Always works; free algorithmic summarization on your device |
+| **Chrome on-device AI** | Uses Chrome built-in Summarizer API (Chrome 138+, device/browser dependent) |
 
 ## Architecture
 
@@ -80,51 +83,38 @@ flowchart TD
   popup[Popup UI] -->|runtime messages| sw[Service Worker]
   sw -->|executeScript| extractor[Content Extractor]
   extractor -->|clean text| sw
-  sw -->|HTTPS| openai[OpenAI API]
-  sw -->|read/write| storage[chrome.storage.local]
+  sw -->|local| local[Local Summarizer]
+  sw -->|optional| offscreen[Offscreen Chrome AI]
+  sw --> storage[chrome.storage.local]
   options[Options Page] --> storage
-  popup --> storage
 ```
-
-- **Popup (`src/popup`)**: UI, loading states, rendering, clipboard, history display
-- **Service worker (`src/background`)**: Orchestrates extraction, OpenAI calls, persistence
-- **Content script (`src/content/extractor.js`)**: DOM extraction executed on demand
-- **Utils (`src/utils`)**: API client, storage helpers, constants, URL guards
 
 ## Permissions rationale
 
-- `activeTab` + `scripting`: least-privilege access to extract content only when you invoke the extension
-- `storage`: save API key, theme, and history locally
-- `https://api.openai.com/*`: required for summarization requests
+- `activeTab` + `scripting`: extract content only when you invoke the extension
+- `storage`: save theme, engine preference, and history locally
+- `offscreen`: run Chrome on-device summarizer when supported
+
+No external API host permissions are required.
 
 ## Publishing to Chrome Web Store
 
-1. Test thoroughly in Developer Mode
-2. Zip the project root (include `manifest.json`, `src/`, `docs/`, `README.md`; exclude `.git/`)
-3. Register a [Chrome Web Store developer account](https://chrome.google.com/webstore/devconsole)
-4. Upload the ZIP as a new item
-5. Provide:
-   - Store description and screenshots
-   - Privacy policy URL (host `docs/privacy-policy.md` on GitHub Pages or your website)
-   - Permission justifications matching this README
+1. Test on article pages in Developer Mode
+2. Zip the project root (include `manifest.json`, `src/`, `docs/`; exclude `.git/`)
+3. Upload via [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+4. Provide privacy policy URL (host `docs/privacy-policy.md`)
+5. Explain permissions: on-device summarization only, no remote API
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| "OpenAI API key is missing" | Add your key in Settings |
-| "Invalid OpenAI API key" | Regenerate key and save again |
-| "Not enough readable content" | Use a content-rich article page |
-| "This page cannot be summarized" | Avoid `chrome://`, Web Store, or browser internal pages |
-| Rate limit errors | Wait briefly and retry |
+| "Not enough readable content" | Use a text-rich article page |
+| "This page cannot be summarized" | Avoid `chrome://`, PDF, or internal browser pages |
+| Chrome AI not available | Use **Auto** or **Local** engine in Settings (local always works) |
+| Summaries feel basic | Expected on **Local** engine; enable Chrome AI if your browser supports it |
 | Clipboard copy fails | Grant clipboard permission when prompted |
-
-## Security notes
-
-- Never commit your API key to git
-- Use restricted OpenAI keys where possible
-- Review OpenAI usage and billing regularly
 
 ## License
 
-This project is provided as-is for development and publishing by the repository owner.
+Provided as-is for development and publishing by the repository owner.

@@ -3,7 +3,8 @@ import {
   MIN_CONTENT_CHARS,
   MESSAGE_TYPES,
 } from "../utils/constants.js";
-import { summarizeWithOpenAI } from "../utils/openai.js";
+import { checkChromeAiAvailability } from "../utils/chrome-ai.js";
+import { summarizeContent } from "../utils/summarizer.js";
 import {
   addHistoryEntry,
   clearHistory,
@@ -64,17 +65,18 @@ async function handleSummarize() {
   const settings = await getSettings();
   const tab = await getActiveTab();
   const extracted = await extractTabContent(tab);
-  const aiResult = await summarizeWithOpenAI(settings.apiKey, extracted);
+  const summaryResult = await summarizeContent(extracted, settings.summaryEngine);
 
   const payload = {
     title: extracted.title,
     url: extracted.url,
     characterCount: extracted.characterCount,
-    readingTimeMinutes: aiResult.readingTimeMinutes,
-    summary: aiResult.summary,
-    takeaways: aiResult.takeaways,
-    actionItems: aiResult.actionItems,
-    preview: truncateText(aiResult.summary, 140),
+    readingTimeMinutes: summaryResult.readingTimeMinutes,
+    summary: summaryResult.summary,
+    takeaways: summaryResult.takeaways,
+    actionItems: summaryResult.actionItems,
+    engine: summaryResult.engine,
+    preview: truncateText(summaryResult.summary, 140),
   };
 
   await addHistoryEntry(payload);
@@ -82,6 +84,13 @@ async function handleSummarize() {
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (
+    message?.type === MESSAGE_TYPES.CHROME_AI_SUMMARIZE ||
+    message?.type === "CHROME_AI_STATUS"
+  ) {
+    return false;
+  }
+
   const run = async () => {
     switch (message?.type) {
       case MESSAGE_TYPES.SUMMARIZE:
@@ -94,6 +103,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return clearHistory();
       case MESSAGE_TYPES.DELETE_HISTORY_ITEM:
         return deleteHistoryItem(message.id);
+      case MESSAGE_TYPES.GET_ENGINE_STATUS:
+        return checkChromeAiAvailability();
       default:
         throw new Error("Unknown message type.");
     }

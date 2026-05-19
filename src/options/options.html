@@ -11,37 +11,27 @@
       <header class="hero">
         <h1>QuickDigest AI Settings</h1>
         <p>
-          Manage your OpenAI API key, appearance, and summary history. Your API
-          key is stored locally on this device only.
+          No sign-in, no API keys, no credit card. Summaries run on your device
+          using free local processing, with optional Chrome on-device AI when
+          your browser supports it.
         </p>
       </header>
 
       <section class="panel">
-        <h2>OpenAI</h2>
+        <h2>Summary engine</h2>
         <div class="field">
-          <label for="apiKey">API key</label>
-          <input
-            id="apiKey"
-            type="password"
-            placeholder="sk-..."
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <small>
-            Create a key at
-            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer"
-              >platform.openai.com</a
-            >. Never share your key.
+          <label for="engineSelect">Preferred method</label>
+          <select id="engineSelect">
+            <option value="auto">Auto (best available)</option>
+            <option value="local">Local (always free, works everywhere)</option>
+            <option value="chrome-ai">Chrome on-device AI (when available)</option>
+          </select>
+          <small id="engineHelp">
+            Auto tries Chrome on-device AI first, then falls back to local
+            extraction instantly.
           </small>
         </div>
-        <div class="actions">
-          <button class="btn btn-primary" id="saveKeyBtn" type="button">
-            Save API key
-          </button>
-          <button class="btn btn-secondary" id="toggleKeyBtn" type="button">
-            Show key
-          </button>
-        </div>
+        <p class="engine-status" id="chromeAiStatus">Checking Chrome AI availability…</p>
       </section>
 
       <section class="panel">
@@ -57,7 +47,7 @@
 
       <section class="panel">
         <h2>History</h2>
-        <p style="margin: 0 0 12px; color: var(--text-secondary); font-size: 14px">
+        <p class="panel-copy">
           Remove all locally saved summaries from this extension.
         </p>
         <button class="btn btn-danger" id="clearHistoryBtn" type="button">

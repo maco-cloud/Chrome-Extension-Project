@@ -1,6 +1,7 @@
 import {
   MAX_HISTORY_ITEMS,
   STORAGE_KEYS,
+  SUMMARY_ENGINES,
 } from "./constants.js";
 
 export async function getFromStorage(keys) {
@@ -13,17 +14,17 @@ export async function setInStorage(items) {
 
 export async function getSettings() {
   const data = await getFromStorage([
-    STORAGE_KEYS.API_KEY,
+    STORAGE_KEYS.SUMMARY_ENGINE,
     STORAGE_KEYS.DARK_MODE,
   ]);
   return {
-    apiKey: data[STORAGE_KEYS.API_KEY] || "",
+    summaryEngine: data[STORAGE_KEYS.SUMMARY_ENGINE] || SUMMARY_ENGINES.AUTO,
     darkMode: Boolean(data[STORAGE_KEYS.DARK_MODE]),
   };
 }
 
-export async function saveApiKey(apiKey) {
-  await setInStorage({ [STORAGE_KEYS.API_KEY]: apiKey.trim() });
+export async function saveSummaryEngine(engine) {
+  await setInStorage({ [STORAGE_KEYS.SUMMARY_ENGINE]: engine });
 }
 
 export async function saveDarkMode(enabled) {
@@ -50,6 +51,7 @@ export async function addHistoryEntry(entry) {
       actionItems: entry.actionItems,
       readingTimeMinutes: entry.readingTimeMinutes,
       characterCount: entry.characterCount,
+      engine: entry.engine,
       timestamp: Date.now(),
     },
     ...history.filter((item) => item.url !== entry.url),

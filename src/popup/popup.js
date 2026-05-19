@@ -1,4 +1,4 @@
-import { MESSAGE_TYPES } from "../utils/constants.js";
+import { ENGINE_BADGES, MESSAGE_TYPES } from "../utils/constants.js";
 import { sendMessage } from "../utils/messaging.js";
 import { formatRelativeTime } from "../utils/url.js";
 
@@ -13,6 +13,7 @@ const els = {
   takeawaysList: document.getElementById("takeawaysList"),
   actionsList: document.getElementById("actionsList"),
   metaRow: document.getElementById("metaRow"),
+  engineChip: document.getElementById("engineChip"),
   readingChip: document.getElementById("readingChip"),
   charsChip: document.getElementById("charsChip"),
   historySection: document.getElementById("historySection"),
@@ -75,6 +76,8 @@ function renderResults(data) {
   renderList(els.takeawaysList, data.takeaways);
   renderList(els.actionsList, data.actionItems);
 
+  els.engineChip.textContent =
+    ENGINE_BADGES[data.engine] || ENGINE_BADGES.local;
   els.readingChip.textContent = `${data.readingTimeMinutes} min read`;
   els.charsChip.textContent = `${data.characterCount.toLocaleString()} chars`;
   els.metaRow.hidden = false;
@@ -174,6 +177,7 @@ function renderHistory(history) {
         actionItems: item.actionItems,
         readingTimeMinutes: item.readingTimeMinutes,
         characterCount: item.characterCount,
+        engine: item.engine || "local",
       });
     });
 
