@@ -58,6 +58,7 @@ The Extension does not:
 | `activeTab` | Access the current tab only when you invoke the Extension |
 | `scripting` | Extract readable page content on demand |
 | `offscreen` | Run Chrome on-device AI summarizer when available |
+| `contextMenus` | Right-click actions to summarize page or selection |
 
 ## Security
 
