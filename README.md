@@ -26,6 +26,7 @@ QuickDigest AI is a **privacy-first** Chrome Extension (Manifest V3) that summar
 
 ```text
 manifest.json
+website/          maco-crafts.gg brand site (GitHub Pages)
 docs/
   CHANGELOG.md
   privacy-policy.md
@@ -71,8 +72,11 @@ src/
 
 ## Publishing
 
-See [docs/store-listing.md](docs/store-listing.md) for copy, keywords, and screenshot ideas.  
-Host [docs/privacy-policy.md](docs/privacy-policy.md) for the store privacy policy URL.
+See [docs/store-listing.md](docs/store-listing.md) for copy, keywords, and screenshot ideas.
+
+**Privacy policy (Chrome Web Store):** https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html  
+**Product page:** https://maco-cloud.github.io/Chrome-Extension-Project/quickdigest.html  
+Source: [docs/privacy-policy.md](docs/privacy-policy.md) · Deploy: [website/README.md](website/README.md)
 
 ## Troubleshooting
 

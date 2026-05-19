@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://maco-crafts.gg/sitemap.xml

@@ -54,6 +54,15 @@ summarizer, summary, article, reading, productivity, ai, privacy, offline, diges
 - No remote servers operated by the developer
 - User data stored locally on device
 
+## Privacy policy URL (Chrome Web Store)
+https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html
+
+## Homepage URL (Chrome Web Store)
+https://maco-cloud.github.io/Chrome-Extension-Project/quickdigest.html
+
+## Support URL (Chrome Web Store)
+https://github.com/maco-cloud/Chrome-Extension-Project/issues
+
 ## Permission justifications
 | Permission | Justification |
 |------------|---------------|
