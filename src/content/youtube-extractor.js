@@ -1,4 +1,8 @@
-return (async () => {
+if (globalThis.__QD_YT_EXTRACT_PROMISE__) {
+  return globalThis.__QD_YT_EXTRACT_PROMISE__;
+}
+
+globalThis.__QD_YT_EXTRACT_PROMISE__ = (async () => {
   const MIN_TRANSCRIPT_CHARS = 80;
 
   function normalize(text) {
@@ -57,35 +61,16 @@ return (async () => {
 
     return new Promise((resolve, reject) => {
       const started = Date.now();
-
-      const observer = new MutationObserver(() => {
-        const response = getPlayerResponse();
-        if (response) {
-          observer.disconnect();
-          resolve(response);
-        } else if (Date.now() - started > timeoutMs) {
-          observer.disconnect();
-          reject(new Error("PLAYER_RESPONSE_TIMEOUT"));
-        }
-      });
-
-      observer.observe(document.documentElement, {
-        childList: true,
-        subtree: true,
-      });
-
       const timer = setInterval(() => {
         const response = getPlayerResponse();
         if (response) {
           clearInterval(timer);
-          observer.disconnect();
           resolve(response);
         } else if (Date.now() - started > timeoutMs) {
           clearInterval(timer);
-          observer.disconnect();
           reject(new Error("PLAYER_RESPONSE_TIMEOUT"));
         }
-      }, 250);
+      }, 300);
     });
   }
 
@@ -278,4 +263,8 @@ return (async () => {
       message: "Could not extract a YouTube transcript on this page.",
     };
   }
-})();
+})().finally(() => {
+  globalThis.__QD_YT_EXTRACT_PROMISE__ = null;
+});
+
+return globalThis.__QD_YT_EXTRACT_PROMISE__;

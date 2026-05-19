@@ -59,6 +59,7 @@ let historyCache = [];
 let toastTimer = null;
 let searchDebounce = null;
 let pageContext = { isYouTube: false };
+let summarizeInFlight = false;
 
 const YOUTUBE_EMPTY = {
   icon: "▶",
@@ -91,10 +92,15 @@ function showToast(message) {
 }
 
 function setStatus(message, visible = false) {
+  els.statusBanner.classList.toggle("is-visible", visible);
   els.statusBanner.hidden = !visible;
   if (visible && message) {
     els.statusText.textContent = message;
   }
+}
+
+function clearLoadingState() {
+  setLoading(false);
 }
 
 function applyPageContext(context) {
@@ -122,9 +128,9 @@ function setLoading(isLoading, options = {}) {
   els.summarizeSelectionBtn.disabled = isLoading;
   els.skeletonWrap.classList.toggle("visible", isLoading);
   els.skeletonWrap.setAttribute("aria-hidden", String(!isLoading));
-  setStatus(statusMessage, isLoading);
 
   if (isLoading) {
+    setStatus(statusMessage, true);
     els.summarizeBtn.innerHTML =
       '<span class="spinner" aria-hidden="true"></span> Working…';
     els.emptyState.style.display = "none";
@@ -134,6 +140,7 @@ function setLoading(isLoading, options = {}) {
   } else {
     els.summarizeBtn.textContent = label;
     setStatus("", false);
+    els.skeletonWrap.classList.remove("visible");
   }
 }
 
@@ -206,6 +213,7 @@ function renderResults(data) {
   els.emptyState.style.display = "none";
   els.results.classList.add("visible");
   els.resultActions.hidden = false;
+  clearLoadingState();
 }
 
 function buildCopyText(section) {
@@ -444,6 +452,11 @@ async function loadInitialState() {
 }
 
 async function runSummarize(type) {
+  if (summarizeInFlight) {
+    return;
+  }
+
+  summarizeInFlight = true;
   try {
     setLoading(true, {
       statusMessage: pageContext.isYouTube
@@ -464,6 +477,7 @@ async function runSummarize(type) {
     els.keyMomentsCard.hidden = true;
     showToast(error.message || "Summarization failed");
   } finally {
+    summarizeInFlight = false;
     setLoading(false);
   }
 }
