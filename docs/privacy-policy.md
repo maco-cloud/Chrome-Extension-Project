@@ -78,6 +78,5 @@ We may update this policy as the Extension evolves. Updates will be reflected in
 
 For privacy questions:
 
-- Email: privacy@maco-crafts.gg
-- Web: https://maco-crafts.gg/privacy.html
+- Web: https://github.com/maco-cloud/Chrome-Extension-Project/blob/main/docs/privacy-policy.md
 - GitHub: https://github.com/maco-cloud/Chrome-Extension-Project/issues

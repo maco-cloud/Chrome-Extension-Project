@@ -55,10 +55,10 @@ summarizer, summary, article, reading, productivity, ai, privacy, offline, diges
 - User data stored locally on device
 
 ## Privacy policy URL (Chrome Web Store)
-https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html
+https://github.com/maco-cloud/Chrome-Extension-Project/blob/main/docs/privacy-policy.md
 
 ## Homepage URL (Chrome Web Store)
-https://maco-cloud.github.io/Chrome-Extension-Project/quickdigest.html
+Use your Chrome Web Store listing URL when live, or leave blank until published.
 
 ## Support URL (Chrome Web Store)
 https://github.com/maco-cloud/Chrome-Extension-Project/issues

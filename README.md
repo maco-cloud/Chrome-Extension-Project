@@ -40,11 +40,13 @@ src/
   utils/          text, storage, summarizer, cache, export
 ```
 
-## Install (developer mode)
+## Install
 
-1. Clone: `git clone https://github.com/maco-cloud/Chrome-Extension-Project.git`
-2. Open `chrome://extensions` → **Developer mode** → **Load unpacked**
-3. Select the repo root (contains `manifest.json`)
+QuickDigest AI is distributed through the **Chrome Web Store** only (not via this repository).
+
+When the listing is live, install from the store link in [docs/store-listing.md](docs/store-listing.md).
+
+This repository is for development and store compliance documentation. See [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md).
 
 ## Usage
 
@@ -74,9 +76,8 @@ src/
 
 See [docs/store-listing.md](docs/store-listing.md) for copy, keywords, and screenshot ideas.
 
-**Privacy policy (Chrome Web Store):** https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html  
-**Product page:** https://maco-cloud.github.io/Chrome-Extension-Project/quickdigest.html  
-Source: [docs/privacy-policy.md](docs/privacy-policy.md) · Deploy: [website/README.md](website/README.md)
+**Privacy policy (Chrome Web Store):** https://github.com/maco-cloud/Chrome-Extension-Project/blob/main/docs/privacy-policy.md  
+Source: [docs/privacy-policy.md](docs/privacy-policy.md)
 
 ## Troubleshooting
 
