@@ -23,10 +23,14 @@ async function ensureOffscreenDocument() {
   });
 }
 
-function requestChromeSummary(text) {
+function requestChromeSummary(payload) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
-      { type: MESSAGE_TYPES.CHROME_AI_SUMMARIZE, text },
+      {
+        type: MESSAGE_TYPES.CHROME_AI_SUMMARIZE,
+        text: payload.text,
+        language: payload.language,
+      },
       (response) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -61,7 +65,7 @@ export async function checkChromeAiAvailability() {
 
 export async function summarizeWithChromeAi(payload) {
   await ensureOffscreenDocument();
-  const result = await requestChromeSummary(payload.text);
+  const result = await requestChromeSummary(payload);
 
   return {
     ...result,

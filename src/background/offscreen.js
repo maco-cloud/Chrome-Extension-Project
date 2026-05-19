@@ -1,4 +1,7 @@
-import { MESSAGE_TYPES } from "../utils/constants.js";
+import {
+  MESSAGE_TYPES,
+  normalizeSummarizerOutputLanguage,
+} from "../utils/constants.js";
 import { summarizeLocally } from "../utils/local-summarizer.js";
 import { countWords } from "../utils/text.js";
 
@@ -9,25 +12,32 @@ function parseBullets(text) {
     .filter((line) => line.length > 12);
 }
 
-async function getSummarizer() {
+function buildSummarizerOptions(language) {
+  const outputLanguage = normalizeSummarizerOutputLanguage(language);
+  return {
+    type: "key-points",
+    format: "markdown",
+    length: "medium",
+    outputLanguage,
+  };
+}
+
+async function getSummarizer(language = "en") {
   if (typeof Summarizer === "undefined") {
     throw new Error("Chrome on-device Summarizer API is not available.");
   }
 
-  const availability = await Summarizer.availability();
+  const options = buildSummarizerOptions(language);
+  const availability = await Summarizer.availability(options);
   if (availability === "unavailable") {
     throw new Error("Chrome on-device AI is unavailable on this device.");
   }
 
-  return Summarizer.create({
-    type: "key-points",
-    format: "markdown",
-    length: "medium",
-  });
+  return Summarizer.create(options);
 }
 
-async function summarizeWithChromeAi(text) {
-  const summarizer = await getSummarizer();
+async function summarizeWithChromeAi(text, language = "en") {
+  const summarizer = await getSummarizer(language);
   const output = await summarizer.summarize(text);
   if (typeof summarizer.destroy === "function") {
     await summarizer.destroy();
@@ -36,7 +46,12 @@ async function summarizeWithChromeAi(text) {
   const bullets = parseBullets(output);
   const summary = bullets.slice(0, 2).join(" ") || output.trim();
   const takeaways = bullets.length ? bullets.slice(0, 6) : [summary];
-  const local = summarizeLocally({ text, wordCount: countWords(text) });
+  const outputLanguage = normalizeSummarizerOutputLanguage(language);
+  const local = summarizeLocally({
+    text,
+    wordCount: countWords(text),
+    language: outputLanguage,
+  });
 
   return {
     tldr: local.tldr || summary.slice(0, 120),
@@ -46,7 +61,7 @@ async function summarizeWithChromeAi(text) {
     actionItems: local.actionItems,
     readingTimeMinutes: local.readingTimeMinutes,
     sentiment: local.sentiment,
-    language: local.language,
+    language: outputLanguage,
   };
 }
 
@@ -60,7 +75,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       return;
     }
 
-    Summarizer.availability()
+    const statusOptions = buildSummarizerOptions("en");
+    Summarizer.availability(statusOptions)
       .then((status) => {
         sendResponse({
           available: status === "available" || status === "readily",
@@ -69,6 +85,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
               ? "Ready"
               : `Status: ${status}`,
           status,
+          outputLanguage: statusOptions.outputLanguage,
         });
       })
       .catch((error) => {
@@ -78,7 +95,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 
   if (message?.type === MESSAGE_TYPES.CHROME_AI_SUMMARIZE) {
-    summarizeWithChromeAi(message.text)
+    summarizeWithChromeAi(message.text, message.language)
       .then((data) => sendResponse({ ok: true, data }))
       .catch((error) =>
         sendResponse({ ok: false, error: error.message || "Chrome AI failed." }),

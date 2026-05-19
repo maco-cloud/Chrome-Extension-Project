@@ -6,6 +6,12 @@ export const MAX_CONTENT_CHARS = 16000;
 export const MIN_CONTENT_CHARS = 80;
 export const MIN_SELECTION_CHARS = 40;
 export const WORDS_PER_MINUTE = 225;
+export const SUMMARIZER_OUTPUT_LANGUAGES = ["en", "es", "ja"];
+
+export function normalizeSummarizerOutputLanguage(language) {
+  const code = (language || "en").split("-")[0].toLowerCase();
+  return SUMMARIZER_OUTPUT_LANGUAGES.includes(code) ? code : "en";
+}
 export const EXTRACTION_CACHE_TTL_MS = 5 * 60 * 1000;
 export const OFFSCREEN_DOCUMENT_PATH = "src/background/offscreen.html";
 
