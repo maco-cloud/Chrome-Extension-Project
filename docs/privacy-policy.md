@@ -1,6 +1,6 @@
 # QuickDigest AI Privacy Policy
 
-**Last updated:** May 18, 2026
+**Last updated:** May 18, 2026 (v2.0.0)
 
 QuickDigest AI ("the Extension") summarizes webpages on your device. This policy explains what data is handled and how.
 

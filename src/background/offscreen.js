@@ -1,9 +1,6 @@
-import { MESSAGE_TYPES, WORDS_PER_MINUTE } from "../utils/constants.js";
+import { MESSAGE_TYPES } from "../utils/constants.js";
 import { summarizeLocally } from "../utils/local-summarizer.js";
-
-function countWords(text) {
-  return text.split(/\s+/).filter(Boolean).length;
-}
+import { countWords } from "../utils/text.js";
 
 function parseBullets(text) {
   return text
@@ -39,18 +36,17 @@ async function summarizeWithChromeAi(text) {
   const bullets = parseBullets(output);
   const summary = bullets.slice(0, 2).join(" ") || output.trim();
   const takeaways = bullets.length ? bullets.slice(0, 6) : [summary];
-  const readingTimeMinutes = Math.max(1, Math.round(countWords(text) / WORDS_PER_MINUTE));
-
-  const localExtras = summarizeLocally({
-    text,
-    wordCount: countWords(text),
-  });
+  const local = summarizeLocally({ text, wordCount: countWords(text) });
 
   return {
+    tldr: local.tldr || summary.slice(0, 120),
     summary,
+    bullets: bullets.length ? bullets : local.bullets,
     takeaways,
-    actionItems: localExtras.actionItems,
-    readingTimeMinutes,
+    actionItems: local.actionItems,
+    readingTimeMinutes: local.readingTimeMinutes,
+    sentiment: local.sentiment,
+    language: local.language,
   };
 }
 

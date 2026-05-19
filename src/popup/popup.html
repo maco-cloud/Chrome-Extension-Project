@@ -13,32 +13,53 @@
           <div class="brand-icon" aria-hidden="true">Q</div>
           <div class="brand-text">
             <h1>QuickDigest AI</h1>
-            <p>Smart summaries in seconds</p>
+            <p>Private summaries on your device</p>
           </div>
         </div>
-        <div class="header-actions">
-          <button
-            class="icon-btn"
-            id="settingsBtn"
-            type="button"
-            title="Settings"
-            aria-label="Open settings"
-          >
-            &#9881;
-          </button>
-        </div>
+        <button
+          class="icon-btn"
+          id="settingsBtn"
+          type="button"
+          title="Settings"
+          aria-label="Open settings"
+        >
+          &#9881;
+        </button>
       </header>
 
-      <main class="main" id="main">
-        <div class="cta-row">
-          <button class="btn-primary" id="summarizeBtn" type="button">
-            Summarize this page
-          </button>
-        </div>
+      <div class="toolbar" role="toolbar" aria-label="Summary actions">
+        <button class="btn-primary" id="summarizeBtn" type="button">
+          Summarize page
+        </button>
+        <button class="btn-secondary" id="summarizeSelectionBtn" type="button">
+          Selection
+        </button>
+      </div>
 
+      <div class="toolbar-actions" id="resultActions" hidden>
+        <button class="btn-ghost" id="copyAllBtn" type="button">Copy all</button>
+        <button class="btn-ghost" id="exportBtn" type="button">Export .txt</button>
+        <button class="btn-ghost danger" id="clearHistoryBtn" type="button">
+          Clear history
+        </button>
+      </div>
+
+      <div class="search-row" id="historySearchRow" hidden>
+        <label class="sr-only" for="historySearch">Search history</label>
+        <input
+          id="historySearch"
+          type="search"
+          placeholder="Search saved summaries…"
+          autocomplete="off"
+        />
+      </div>
+
+      <main class="main" id="main">
         <div class="meta-row" id="metaRow" hidden>
           <span class="chip" id="engineChip">Local engine</span>
-          <span class="chip" id="readingChip">— min read</span>
+          <span class="chip" id="sentimentChip">Neutral</span>
+          <span class="chip" id="languageChip">EN</span>
+          <span class="chip" id="readingChip">— min</span>
           <span class="chip" id="charsChip">— chars</span>
         </div>
 
@@ -46,34 +67,51 @@
           <div class="skeleton"></div>
           <div class="skeleton"></div>
           <div class="skeleton"></div>
+          <div class="skeleton short"></div>
         </section>
 
         <section class="empty-state" id="emptyState">
+          <div class="empty-icon" aria-hidden="true">&#10022;</div>
           <h2>Ready when you are</h2>
           <p>
-            Open any article or blog post, then tap
-            <strong>Summarize this page</strong>. No account, API key, or payment
-            required—summaries run on your device.
+            Summarize any article instantly. No sign-in, no API key, no tracking.
+          </p>
+          <p class="hint">
+            Shortcut: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>
           </p>
         </section>
 
         <section class="results" id="results" aria-live="polite">
+          <article class="card card-highlight">
+            <div class="card-header">
+              <span class="card-title">TL;DR</span>
+              <button class="copy-btn" data-copy="tldr" type="button">Copy</button>
+            </div>
+            <div class="card-body lead" id="tldrText"></div>
+          </article>
+
           <article class="card">
             <div class="card-header">
-              <span class="card-title">Quick Summary</span>
-              <button class="copy-btn" data-copy="summary" type="button">
-                Copy
-              </button>
+              <span class="card-title">Summary</span>
+              <button class="copy-btn" data-copy="summary" type="button">Copy</button>
             </div>
             <div class="card-body" id="summaryText"></div>
           </article>
 
           <article class="card">
             <div class="card-header">
+              <span class="card-title">Bullet Summary</span>
+              <button class="copy-btn" data-copy="bullets" type="button">Copy</button>
+            </div>
+            <div class="card-body">
+              <ul id="bulletsList"></ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
               <span class="card-title">Key Takeaways</span>
-              <button class="copy-btn" data-copy="takeaways" type="button">
-                Copy
-              </button>
+              <button class="copy-btn" data-copy="takeaways" type="button">Copy</button>
             </div>
             <div class="card-body">
               <ul id="takeawaysList"></ul>
@@ -83,9 +121,7 @@
           <article class="card">
             <div class="card-header">
               <span class="card-title">Action Items</span>
-              <button class="copy-btn" data-copy="actions" type="button">
-                Copy
-              </button>
+              <button class="copy-btn" data-copy="actions" type="button">Copy</button>
             </div>
             <div class="card-body">
               <ul id="actionsList"></ul>
@@ -93,13 +129,22 @@
           </article>
         </section>
 
+        <section class="history-section" id="recentSection" hidden>
+          <h2 class="section-title">Recent pages</h2>
+          <div class="recent-list" id="recentList"></div>
+        </section>
+
         <section class="history-section" id="historySection" hidden>
-          <h2 class="section-title">Recent summaries</h2>
+          <h2 class="section-title">Saved summaries</h2>
           <div class="history-list" id="historyList"></div>
         </section>
       </main>
 
-      <footer class="footer">QuickDigest AI · Manifest V3</footer>
+      <footer class="footer">
+        <span>QuickDigest AI v2</span>
+        <span aria-hidden="true">·</span>
+        <span>Privacy-first</span>
+      </footer>
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>

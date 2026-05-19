@@ -45,7 +45,7 @@ function requestChromeSummary(text) {
 export async function checkChromeAiAvailability() {
   try {
     await ensureOffscreenDocument();
-    const status = await new Promise((resolve) => {
+    return await new Promise((resolve) => {
       chrome.runtime.sendMessage({ type: "CHROME_AI_STATUS" }, (response) => {
         if (chrome.runtime.lastError) {
           resolve({ available: false, reason: chrome.runtime.lastError.message });
@@ -54,7 +54,6 @@ export async function checkChromeAiAvailability() {
         resolve(response || { available: false, reason: "Unknown status" });
       });
     });
-    return status;
   } catch (error) {
     return { available: false, reason: error.message };
   }
@@ -65,10 +64,7 @@ export async function summarizeWithChromeAi(payload) {
   const result = await requestChromeSummary(payload.text);
 
   return {
-    summary: result.summary,
-    takeaways: result.takeaways,
-    actionItems: result.actionItems,
-    readingTimeMinutes: result.readingTimeMinutes,
+    ...result,
     engine: "chrome-ai",
   };
 }
@@ -77,7 +73,6 @@ export async function summarizeWithChromeAiOrLocal(payload) {
   try {
     return await summarizeWithChromeAi(payload);
   } catch {
-    const local = summarizeLocally(payload);
-    return { ...local, engine: "local" };
+    return summarizeLocally(payload);
   }
 }

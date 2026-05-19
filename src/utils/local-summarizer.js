@@ -1,54 +1,35 @@
-import { WORDS_PER_MINUTE } from "./constants.js";
-
-const STOPWORDS = new Set([
-  "a", "an", "the", "and", "or", "but", "if", "then", "else", "when", "at",
-  "by", "for", "with", "about", "against", "between", "into", "through",
-  "during", "before", "after", "above", "below", "to", "from", "up", "down",
-  "in", "out", "on", "off", "over", "under", "again", "further", "once",
-  "here", "there", "all", "any", "both", "each", "few", "more", "most",
-  "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so",
-  "than", "too", "very", "can", "will", "just", "don", "should", "now",
-  "is", "are", "was", "were", "be", "been", "being", "have", "has", "had",
-  "do", "does", "did", "of", "as", "it", "its", "this", "that", "these",
-  "those", "i", "you", "he", "she", "we", "they", "them", "his", "her",
-  "our", "your", "their", "what", "which", "who", "whom", "how", "why",
-]);
+import {
+  countWords,
+  dedupeSentences,
+  detectLanguage,
+  detectSentiment,
+  estimateReadingMinutes,
+  splitSentences,
+  tokenize,
+  truncateSentence,
+} from "./text.js";
 
 const ACTION_PATTERNS = [
   /\b(should|must|need to|needs to|recommend|ensure|consider|try to|make sure)\b/i,
   /\b(step \d+|first,|second,|finally,|next,)\b/i,
-  /\b(action item|to-do|todo|follow up)\b/i,
+  /\b(action item|to-do|todo|follow up|action:)\b/i,
 ];
 
-function tokenize(sentence) {
-  return sentence
-    .toLowerCase()
-    .replace(/[^a-z0-9\s'-]/g, " ")
-    .split(/\s+/)
-    .filter((word) => word.length > 2 && !STOPWORDS.has(word));
-}
-
-function splitSentences(text) {
-  return text
-    .split(/(?<=[.!?])\s+|\n{2,}/)
-    .map((s) => s.replace(/\s+/g, " ").trim())
-    .filter((s) => s.length > 35);
-}
-
-function countWords(text) {
-  return text.split(/\s+/).filter(Boolean).length;
-}
-
-function scoreSentences(sentences) {
+function buildWordFrequency(sentences) {
   const frequencies = new Map();
-
   sentences.forEach((sentence) => {
-    const unique = new Set(tokenize(sentence));
-    unique.forEach((word) => {
+    new Set(tokenize(sentence)).forEach((word) => {
       frequencies.set(word, (frequencies.get(word) || 0) + 1);
     });
   });
+  return frequencies;
+}
 
+function titleKeywords(title) {
+  return new Set(tokenize(title || ""));
+}
+
+function scoreSentences(sentences, frequencies, titleWords) {
   return sentences.map((sentence, index) => {
     const words = tokenize(sentence);
     if (!words.length) {
@@ -62,11 +43,20 @@ function scoreSentences(sentences) {
     score /= words.length;
 
     if (index < 2) {
-      score *= 1.25;
+      score *= 1.3;
     }
-    if (sentence.length > 220) {
-      score *= 0.85;
+    if (index > sentences.length - 4) {
+      score *= 0.9;
     }
+    if (sentence.length > 240) {
+      score *= 0.82;
+    }
+    if (sentence.length < 80) {
+      score *= 0.88;
+    }
+
+    const titleHits = words.filter((word) => titleWords.has(word)).length;
+    score += titleHits * 0.35;
 
     return { sentence, score, index };
   });
@@ -95,83 +85,115 @@ function extractActionItems(sentences) {
     ACTION_PATTERNS.some((pattern) => pattern.test(sentence)),
   );
 
-  const unique = [];
-  const seen = new Set();
-
-  matches.forEach((sentence) => {
-    const normalized = sentence.toLowerCase();
-    if (seen.has(normalized)) {
-      return;
-    }
-    seen.add(normalized);
-    unique.push(sentence.replace(/^[-•*\d.]+\s*/, "").trim());
-  });
+  const unique = dedupeSentences(
+    matches.map((s) => s.replace(/^[-•*\d.]+\s*/, "").trim()),
+    0.75,
+  );
 
   if (unique.length >= 2) {
-    return unique.slice(0, 5);
+    return unique.slice(0, 6);
   }
 
-  const imperative = sentences
-    .filter((s) => /^(try|use|avoid|start|stop|check|review|update|create|build|learn)\b/i.test(s))
-    .slice(0, 4);
+  const imperative = dedupeSentences(
+    sentences.filter((s) =>
+      /^(try|use|avoid|start|stop|check|review|update|create|build|learn|download|install)\b/i.test(
+        s,
+      ),
+    ),
+    0.75,
+  ).slice(0, 5);
 
   if (imperative.length) {
     return imperative;
   }
 
   return [
-    "Skim the full article for context around these highlights.",
-    "Bookmark the page if you plan to revisit the details later.",
+    "Review the full article for supporting details and examples.",
+    "Save or share the page if you will need it again later.",
   ];
 }
 
-function toTakeawayBullets(sentences) {
-  return sentences.map((sentence) => {
-    const trimmed = sentence.trim();
-    if (trimmed.length <= 140) {
-      return trimmed;
-    }
-    return `${trimmed.slice(0, 137).trim()}…`;
-  });
+function buildTldr(summarySentence, sentences) {
+  const candidate =
+    summarySentence ||
+    sentences.find((s) => s.length > 50 && s.length < 180) ||
+    sentences[0] ||
+    "";
+  return truncateSentence(candidate, 120);
 }
 
-export function summarizeLocally(payload) {
-  const sentences = splitSentences(payload.text);
-
-  if (sentences.length < 2) {
-    const fallback = payload.text.trim();
-    return {
-      summary: fallback,
-      takeaways: [fallback],
-      actionItems: extractActionItems([fallback]),
-      readingTimeMinutes: Math.max(
-        1,
-        Math.round(countWords(payload.text) / WORDS_PER_MINUTE),
-      ),
-      engine: "local",
-    };
-  }
-
-  const scored = scoreSentences(sentences);
-  const used = new Set();
-  const summaryPicks = pickTop(scored, Math.min(4, Math.ceil(sentences.length / 4)), used);
-  const takeawayPicks = pickTop(scored, Math.min(6, Math.ceil(sentences.length / 3)), used);
-
-  const summary = summaryPicks.map((item) => item.sentence).join(" ");
-  const takeaways = toTakeawayBullets(
-    takeawayPicks.length ? takeawayPicks.map((i) => i.sentence) : summaryPicks.map((i) => i.sentence),
-  );
-  const actionItems = extractActionItems(sentences);
-  const readingTimeMinutes = Math.max(
-    1,
-    Math.round((payload.wordCount || countWords(payload.text)) / WORDS_PER_MINUTE),
+function normalizeSummaryResult(base, payload) {
+  const language = detectLanguage(payload.text, payload.language);
+  const readingTimeMinutes = estimateReadingMinutes(
+    payload.wordCount || countWords(payload.text),
   );
 
   return {
-    summary,
-    takeaways,
-    actionItems,
+    tldr: base.tldr,
+    summary: base.summary,
+    bullets: base.bullets,
+    takeaways: base.takeaways,
+    actionItems: base.actionItems,
     readingTimeMinutes,
+    sentiment: base.sentiment,
+    language,
     engine: "local",
   };
+}
+
+export function summarizeLocally(payload) {
+  const rawSentences = splitSentences(payload.text);
+  const sentences = dedupeSentences(rawSentences);
+
+  if (sentences.length < 2) {
+    const fallback = (payload.text || "").trim();
+    const sentiment = detectSentiment([fallback]);
+    return normalizeSummaryResult(
+      {
+        tldr: buildTldr(fallback, [fallback]),
+        summary: fallback,
+        bullets: [truncateSentence(fallback, 160)],
+        takeaways: [truncateSentence(fallback, 160)],
+        actionItems: extractActionItems([fallback]),
+        sentiment,
+      },
+      payload,
+    );
+  }
+
+  const frequencies = buildWordFrequency(sentences);
+  const titleWords = titleKeywords(payload.title);
+  const scored = scoreSentences(sentences, frequencies, titleWords);
+  const used = new Set();
+
+  const summaryCount = Math.min(4, Math.max(2, Math.ceil(sentences.length / 5)));
+  const takeawayCount = Math.min(6, Math.max(3, Math.ceil(sentences.length / 4)));
+  const bulletCount = Math.min(8, Math.max(4, Math.ceil(sentences.length / 3)));
+
+  const summaryPicks = pickTop(scored, summaryCount, used);
+  const takeawayPicks = pickTop(scored, takeawayCount, used);
+  const bulletPicks = pickTop(scored, bulletCount, used);
+
+  const summary = summaryPicks.map((item) => item.sentence).join(" ");
+  const takeaways = takeawayPicks.map((item) =>
+    truncateSentence(item.sentence, 150),
+  );
+  const bullets = bulletPicks.map((item) =>
+    truncateSentence(item.sentence, 130),
+  );
+  const actionItems = extractActionItems(sentences);
+  const sentiment = detectSentiment(sentences);
+  const tldr = buildTldr(summaryPicks[0]?.sentence, sentences);
+
+  return normalizeSummaryResult(
+    {
+      tldr,
+      summary,
+      bullets,
+      takeaways,
+      actionItems,
+      sentiment,
+    },
+    payload,
+  );
 }

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "QuickDigest AI",
-  "version": "1.1.0",
-  "description": "Free, instant webpage summaries—no account, no API key. Uses local AI and Chrome on-device AI when available.",
+  "version": "2.0.0",
+  "description": "Free, private webpage summaries on your device—no account, no API key, no tracking.",
   "action": {
     "default_popup": "src/popup/popup.html",
     "default_title": "QuickDigest AI",
@@ -20,7 +20,23 @@
     "page": "src/options/options.html",
     "open_in_tab": true
   },
-  "permissions": ["storage", "activeTab", "scripting", "offscreen"],
+  "commands": {
+    "summarize-page": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Summarize the current page"
+    },
+    "summarize-selection": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      },
+      "description": "Summarize selected text"
+    }
+  },
+  "permissions": ["storage", "activeTab", "scripting", "offscreen", "contextMenus"],
   "icons": {
     "16": "src/assets/icons/icon16.png",
     "48": "src/assets/icons/icon48.png",
