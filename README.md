@@ -2,10 +2,11 @@
 
 QuickDigest AI is a **privacy-first** Chrome Extension (Manifest V3) that summarizes webpages on your device—no account, no API key, no tracking, no backend.
 
-**Version 2.0.0** — Chrome Web Store quality release.
+**Version 2.1.0** — YouTube transcript summaries + Chrome Web Store quality release.
 
 ## Features
 
+- **YouTube transcript summaries** on watch pages — TL;DR, key moments with timestamps, bullets, takeaways, and action items (no external APIs)
 - **One-click page summaries** with TL;DR, summary, bullets, takeaways, and action items
 - **Summarize selected text** (popup, context menu, `Ctrl+Shift+Y`)
 - **Local engine** (always free) + optional **Chrome on-device AI**
@@ -31,7 +32,7 @@ docs/
   store-listing.md
 src/
   background/     service-worker, offscreen AI
-  content/        extractor.js
+  content/        extractor.js, youtube-extractor.js
   popup/          UI
   options/        settings
   styles/
@@ -49,6 +50,7 @@ src/
 | Action | How |
 |--------|-----|
 | Summarize page | Extension icon → **Summarize page** or `Ctrl+Shift+S` |
+| Summarize YouTube video | Open a YouTube watch page → **Summarize video** (same shortcut) |
 | Summarize selection | Select text → **Selection** or `Ctrl+Shift+Y` |
 | Context menu | Right-click page or selection |
 | Copy / export | Buttons appear after summarization |
@@ -77,6 +79,8 @@ Host [docs/privacy-policy.md](docs/privacy-policy.md) for the store privacy poli
 | Issue | Fix |
 |-------|-----|
 | Not enough content | Use a text-rich article |
+| YouTube: no transcript | Use a video with captions/subtitles enabled |
+| YouTube: still loading | Wait for the player to finish loading, then retry |
 | Restricted page | Avoid `chrome://`, Web Store, PDFs |
 | Chrome AI unavailable | Use Auto or Local in Settings |
 | Incognito | Enable extension in incognito on `chrome://extensions` |
@@ -84,7 +88,6 @@ Host [docs/privacy-policy.md](docs/privacy-policy.md) for the store privacy poli
 
 ## Roadmap (architecture-ready)
 
-- YouTube transcript summaries
 - PDF summarization
 - Optional AI provider plugins
 - Multi-language output

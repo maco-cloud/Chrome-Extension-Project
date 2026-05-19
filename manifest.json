@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "QuickDigest AI",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Free, private webpage summaries on your device—no account, no API key, no tracking.",
   "action": {
     "default_popup": "src/popup/popup.html",

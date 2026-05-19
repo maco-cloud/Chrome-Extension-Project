@@ -1,5 +1,5 @@
 export const EXTENSION_NAME = "QuickDigest AI";
-export const EXTENSION_VERSION = "2.0.0";
+export const EXTENSION_VERSION = "2.1.0";
 export const MAX_HISTORY_ITEMS = 50;
 export const MAX_RECENT_PAGES = 12;
 export const MAX_CONTENT_CHARS = 16000;
@@ -42,6 +42,7 @@ export const SESSION_KEYS = {
 export const MESSAGE_TYPES = {
   SUMMARIZE: "SUMMARIZE",
   SUMMARIZE_SELECTION: "SUMMARIZE_SELECTION",
+  GET_PAGE_CONTEXT: "GET_PAGE_CONTEXT",
   GET_SETTINGS: "GET_SETTINGS",
   GET_HISTORY: "GET_HISTORY",
   CLEAR_HISTORY: "CLEAR_HISTORY",
@@ -55,6 +56,25 @@ export const MESSAGE_TYPES = {
 export const SUMMARIZE_MODES = {
   PAGE: "page",
   SELECTION: "selection",
+  YOUTUBE: "youtube",
+};
+
+export const CONTENT_SOURCE_TYPES = {
+  ARTICLE: "article",
+  YOUTUBE: "youtube",
+  SELECTION: "selection",
+};
+
+export const YOUTUBE_ERRORS = {
+  NO_CAPTIONS:
+    "No transcript is available for this video. Try a video with captions or subtitles enabled.",
+  PLAYER_NOT_READY:
+    "YouTube is still loading this video. Wait a moment and try again.",
+  CAPTION_FETCH_FAILED:
+    "Could not download the transcript for this video. Captions may be restricted.",
+  TRANSCRIPT_TOO_SHORT:
+    "The transcript is too short to summarize. Try a longer video with captions.",
+  NOT_YOUTUBE_WATCH: "Open a YouTube watch page to summarize a video.",
 };
 
 export const UNSUPPORTED_URL_PREFIXES = [
@@ -68,9 +88,8 @@ export const UNSUPPORTED_URL_PREFIXES = [
   "chromewebstore.google.com",
 ];
 
-// Future: YouTube transcripts, PDF parsing, provider plugins, offline models.
 export const FEATURE_FLAGS = {
-  YOUTUBE_TRANSCRIPTS: false,
+  YOUTUBE_TRANSCRIPTS: true,
   PDF_SUMMARIZATION: false,
   AI_PROVIDER_PLUGINS: false,
   OFFLINE_PACKAGED_MODELS: false,

@@ -27,6 +27,8 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
+  max-width: calc(100% - 44px);
 }
 
 .brand-icon {
@@ -555,4 +557,101 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+.yt-badge,
+.chip-youtube {
+  background: linear-gradient(135deg, #ff0000, #cc0000);
+  color: #fff;
+  border: none;
+}
+
+.yt-badge {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.app.is-youtube .brand-icon {
+  background: linear-gradient(135deg, #ff0000, #b31217);
+}
+
+.app.is-youtube .btn-primary {
+  background: linear-gradient(135deg, #ff0000, #cc0000);
+}
+
+.app.is-youtube .btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 18px 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.status-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.card-youtube {
+  border-color: rgba(255, 0, 0, 0.18);
+}
+
+.moment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.moment-list li {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.moment-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 0, 0, 0.12);
+  color: #ff3b30;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.moment-link:hover {
+  background: rgba(255, 0, 0, 0.18);
+}
+
+.moment-label {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
 }

@@ -13,8 +13,9 @@
           <div class="brand-icon" aria-hidden="true">Q</div>
           <div class="brand-text">
             <h1>QuickDigest AI</h1>
-            <p>Private summaries on your device</p>
+            <p id="brandSubtitle">Private summaries on your device</p>
           </div>
+          <span class="yt-badge" id="youtubeBadge" hidden>YouTube</span>
         </div>
         <button
           class="icon-btn"
@@ -54,8 +55,14 @@
         />
       </div>
 
+      <div class="status-banner" id="statusBanner" hidden role="status" aria-live="polite">
+        <span class="status-spinner" aria-hidden="true"></span>
+        <span id="statusText">Working…</span>
+      </div>
+
       <main class="main" id="main">
         <div class="meta-row" id="metaRow" hidden>
+          <span class="chip chip-youtube" id="sourceChip" hidden>YouTube</span>
           <span class="chip" id="engineChip">Local engine</span>
           <span class="chip" id="sentimentChip">Neutral</span>
           <span class="chip" id="languageChip">EN</span>
@@ -71,9 +78,9 @@
         </section>
 
         <section class="empty-state" id="emptyState">
-          <div class="empty-icon" aria-hidden="true">&#10022;</div>
-          <h2>Ready when you are</h2>
-          <p>
+          <div class="empty-icon" id="emptyIcon" aria-hidden="true">&#10022;</div>
+          <h2 id="emptyTitle">Ready when you are</h2>
+          <p id="emptyDescription">
             Summarize any article instantly. No sign-in, no API key, no tracking.
           </p>
           <p class="hint">
@@ -105,6 +112,16 @@
             </div>
             <div class="card-body">
               <ul id="bulletsList"></ul>
+            </div>
+          </article>
+
+          <article class="card card-youtube" id="keyMomentsCard" hidden>
+            <div class="card-header">
+              <span class="card-title">Key Moments</span>
+              <button class="copy-btn" data-copy="moments" type="button">Copy</button>
+            </div>
+            <div class="card-body">
+              <ul class="moment-list" id="keyMomentsList"></ul>
             </div>
           </article>
 
@@ -141,7 +158,7 @@
       </main>
 
       <footer class="footer">
-        <span>QuickDigest AI v2</span>
+        <span>QuickDigest AI v2.1</span>
         <span aria-hidden="true">·</span>
         <span>Privacy-first</span>
       </footer>

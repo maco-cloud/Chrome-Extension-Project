@@ -1,10 +1,12 @@
 import {
-  MAX_CONTENT_CHARS,
-  MIN_CONTENT_CHARS,
-  MIN_SELECTION_CHARS,
-  MESSAGE_TYPES,
-  SESSION_KEYS,
-  SUMMARIZE_MODES,
+ CONTENT_SOURCE_TYPES,
+ MAX_CONTENT_CHARS,
+ MIN_CONTENT_CHARS,
+ MIN_SELECTION_CHARS,
+ MESSAGE_TYPES,
+ SESSION_KEYS,
+ SUMMARIZE_MODES,
+ YOUTUBE_ERRORS,
 } from "../utils/constants.js";
 import { checkChromeAiAvailability } from "../utils/chrome-ai.js";
 import {
@@ -24,19 +26,27 @@ import {
 } from "../utils/storage.js";
 import { isUnsupportedUrl, truncateText } from "../utils/url.js";
 import { countWords } from "../utils/text.js";
+import { isYouTubeWatchUrl } from "../utils/youtube.js";
 
 let summarizeInFlight = null;
 
-function mapError(error) {
-  const message = error?.message || "Something went wrong.";
+function mapYouTubeError(code, fallback) {
+ return YOUTUBE_ERRORS[code] || fallback || YOUTUBE_ERRORS.NO_CAPTIONS;
+}
 
-  if (message.includes("Cannot access contents of")) {
-    return "This page is restricted (try a normal website tab, not incognito-restricted pages).";
-  }
-  if (message.includes("Extensions cannot access")) {
-    return "Extensions cannot access this page type.";
-  }
-  return message;
+function mapError(error) {
+ const message = error?.message || "Something went wrong.";
+
+ if (message.includes("Cannot access contents of")) {
+ return "This page is restricted (try a normal website tab, not incognito-restricted pages).";
+ }
+ if (message.includes("Extensions cannot access")) {
+ return "Extensions cannot access this page type.";
+ }
+ if (Object.values(YOUTUBE_ERRORS).includes(message)) {
+ return message;
+ }
+ return message;
 }
 
 async function getActiveTab() {
@@ -55,17 +65,63 @@ async function readSelectedText(tabId) {
   return (result || "").trim();
 }
 
-async function extractTabContent(tab) {
-  if (isUnsupportedUrl(tab.url)) {
-    throw new Error(
-      "This page cannot be summarized. Open a regular website and try again.",
-    );
-  }
+async function extractYouTubeContent(tab) {
+ const cached = getCachedExtraction(tab.id, tab.url);
+ if (cached) {
+ return cached;
+ }
 
-  const cached = getCachedExtraction(tab.id, tab.url);
-  if (cached) {
-    return cached;
-  }
+ let injectionResult;
+ try {
+ injectionResult = await chrome.scripting.executeScript({
+ target: { tabId: tab.id },
+ files: ["src/content/youtube-extractor.js"],
+ });
+ } catch (error) {
+ throw new Error(mapError(error));
+ }
+
+ const [{ result }] = injectionResult;
+
+ if (!result?.ok) {
+ throw new Error(
+ mapYouTubeError(result?.error, result?.message),
+ );
+ }
+
+ const text = truncateText(result.text, MAX_CONTENT_CHARS);
+ const extracted = {
+ title: result.title || tab.title || "YouTube video",
+ url: result.url || tab.url,
+ text,
+ segments: result.segments || [],
+ videoId: result.videoId,
+ sourceType: CONTENT_SOURCE_TYPES.YOUTUBE,
+ wordCount: result.wordCount,
+ characterCount: text.length,
+ readingTimeMinutes: result.readingTimeMinutes,
+ language: result.language || "en",
+ };
+
+ setCachedExtraction(tab.id, tab.url, extracted);
+ return extracted;
+}
+
+async function extractTabContent(tab) {
+ if (isUnsupportedUrl(tab.url)) {
+ throw new Error(
+ "This page cannot be summarized. Open a regular website and try again.",
+ );
+ }
+
+ if (isYouTubeWatchUrl(tab.url)) {
+ return extractYouTubeContent(tab);
+ }
+
+ const cached = getCachedExtraction(tab.id, tab.url);
+ if (cached) {
+ return cached;
+ }
 
   let injectionResult;
   try {
@@ -86,36 +142,40 @@ async function extractTabContent(tab) {
   }
 
   const text = truncateText(result.text, MAX_CONTENT_CHARS);
-  const extracted = {
-    title: result.title || tab.title || "Untitled page",
-    url: result.url || tab.url,
-    text,
-    wordCount: result.wordCount,
-    characterCount: text.length,
-    readingTimeMinutes: result.readingTimeMinutes,
-    language: result.language || "en",
-  };
+ const extracted = {
+ title: result.title || tab.title || "Untitled page",
+ url: result.url || tab.url,
+ text,
+ sourceType: CONTENT_SOURCE_TYPES.ARTICLE,
+ wordCount: result.wordCount,
+ characterCount: text.length,
+ readingTimeMinutes: result.readingTimeMinutes,
+ language: result.language || "en",
+ };
 
   setCachedExtraction(tab.id, tab.url, extracted);
   return extracted;
 }
 
 function buildPayload(extracted, summaryResult) {
-  return {
-    title: extracted.title,
-    url: extracted.url,
-    characterCount: extracted.characterCount,
-    readingTimeMinutes: summaryResult.readingTimeMinutes,
-    tldr: summaryResult.tldr,
-    summary: summaryResult.summary,
-    bullets: summaryResult.bullets,
-    takeaways: summaryResult.takeaways,
-    actionItems: summaryResult.actionItems,
-    sentiment: summaryResult.sentiment,
-    language: summaryResult.language,
-    engine: summaryResult.engine,
-    preview: truncateText(summaryResult.tldr || summaryResult.summary, 140),
-  };
+ return {
+ title: extracted.title,
+ url: extracted.url,
+ sourceType: summaryResult.sourceType || extracted.sourceType,
+ videoId: extracted.videoId || summaryResult.videoId || null,
+ characterCount: extracted.characterCount,
+ readingTimeMinutes: summaryResult.readingTimeMinutes,
+ tldr: summaryResult.tldr,
+ summary: summaryResult.summary,
+ bullets: summaryResult.bullets,
+ takeaways: summaryResult.takeaways,
+ actionItems: summaryResult.actionItems,
+ keyMoments: summaryResult.keyMoments || [],
+ sentiment: summaryResult.sentiment,
+ language: summaryResult.language,
+ engine: summaryResult.engine,
+ preview: truncateText(summaryResult.tldr || summaryResult.summary, 140),
+ };
 }
 
 async function runSummarize({ mode = SUMMARIZE_MODES.PAGE, selectedText = "" } = {}) {
@@ -135,15 +195,16 @@ async function runSummarize({ mode = SUMMARIZE_MODES.PAGE, selectedText = "" } =
         throw new Error("Select more text to summarize (at least a few sentences).");
       }
 
-      extracted = {
-        title: `${tab.title || "Selection"} (selection)`,
-        url: tab.url || "",
-        text: truncateText(selection, MAX_CONTENT_CHARS),
-        wordCount: countWords(selection),
-        characterCount: selection.length,
-        readingTimeMinutes: Math.max(1, Math.round(countWords(selection) / 225)),
-        language: "en",
-      };
+ extracted = {
+ title: `${tab.title || "Selection"} (selection)`,
+ url: tab.url || "",
+ text: truncateText(selection, MAX_CONTENT_CHARS),
+ sourceType: CONTENT_SOURCE_TYPES.SELECTION,
+ wordCount: countWords(selection),
+ characterCount: selection.length,
+ readingTimeMinutes: Math.max(1, Math.round(countWords(selection) / 225)),
+ language: "en",
+ };
     } else {
       extracted = await extractTabContent(tab);
       await trackRecentPage({ url: extracted.url, title: extracted.title });
@@ -252,11 +313,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   const run = async () => {
     switch (message?.type) {
-      case MESSAGE_TYPES.SUMMARIZE:
-        return runSummarize({ mode: SUMMARIZE_MODES.PAGE });
-      case MESSAGE_TYPES.SUMMARIZE_SELECTION:
-        return runSummarize({ mode: SUMMARIZE_MODES.SELECTION });
-      case MESSAGE_TYPES.GET_SETTINGS:
+ case MESSAGE_TYPES.SUMMARIZE:
+ return runSummarize({ mode: SUMMARIZE_MODES.PAGE });
+ case MESSAGE_TYPES.SUMMARIZE_SELECTION:
+ return runSummarize({ mode: SUMMARIZE_MODES.SELECTION });
+ case MESSAGE_TYPES.GET_PAGE_CONTEXT: {
+ const tab = await getActiveTab();
+ return {
+ isYouTube: isYouTubeWatchUrl(tab.url),
+ url: tab.url || "",
+ title: tab.title || "",
+ };
+ }
+ case MESSAGE_TYPES.GET_SETTINGS:
         return getSettings();
       case MESSAGE_TYPES.GET_HISTORY:
         return getHistory();

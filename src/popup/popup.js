@@ -1,4 +1,5 @@
 import {
+  CONTENT_SOURCE_TYPES,
   ENGINE_BADGES,
   MESSAGE_TYPES,
   SENTIMENT_LABELS,
@@ -12,9 +13,20 @@ import { sendMessage } from "../utils/messaging.js";
 import { formatRelativeTime } from "../utils/url.js";
 
 const els = {
+  app: document.getElementById("app"),
   summarizeBtn: document.getElementById("summarizeBtn"),
   summarizeSelectionBtn: document.getElementById("summarizeSelectionBtn"),
   settingsBtn: document.getElementById("settingsBtn"),
+  youtubeBadge: document.getElementById("youtubeBadge"),
+  brandSubtitle: document.getElementById("brandSubtitle"),
+  statusBanner: document.getElementById("statusBanner"),
+  statusText: document.getElementById("statusText"),
+  sourceChip: document.getElementById("sourceChip"),
+  emptyIcon: document.getElementById("emptyIcon"),
+  emptyTitle: document.getElementById("emptyTitle"),
+  emptyDescription: document.getElementById("emptyDescription"),
+  keyMomentsCard: document.getElementById("keyMomentsCard"),
+  keyMomentsList: document.getElementById("keyMomentsList"),
   copyAllBtn: document.getElementById("copyAllBtn"),
   exportBtn: document.getElementById("exportBtn"),
   clearHistoryBtn: document.getElementById("clearHistoryBtn"),
@@ -46,6 +58,23 @@ let currentResult = null;
 let historyCache = [];
 let toastTimer = null;
 let searchDebounce = null;
+let pageContext = { isYouTube: false };
+
+const YOUTUBE_EMPTY = {
+  icon: "▶",
+  title: "YouTube video detected",
+  description:
+    "Summarize this video from its transcript—TL;DR, key moments with timestamps, bullets, and action items. All on your device.",
+  buttonLabel: "Summarize video",
+};
+
+const DEFAULT_EMPTY = {
+  icon: "✦",
+  title: "Ready when you are",
+  description:
+    "Summarize any article instantly. No sign-in, no API key, no tracking.",
+  buttonLabel: "Summarize page",
+};
 
 function applyTheme(darkMode) {
   document.documentElement.setAttribute(
@@ -61,21 +90,80 @@ function showToast(message) {
   toastTimer = setTimeout(() => els.toast.classList.remove("visible"), 2400);
 }
 
-function setLoading(isLoading, label = "Summarize page") {
+function setStatus(message, visible = false) {
+  els.statusBanner.hidden = !visible;
+  if (visible && message) {
+    els.statusText.textContent = message;
+  }
+}
+
+function applyPageContext(context) {
+  pageContext = context || { isYouTube: false };
+  const copy = pageContext.isYouTube ? YOUTUBE_EMPTY : DEFAULT_EMPTY;
+
+  els.app.classList.toggle("is-youtube", pageContext.isYouTube);
+  els.youtubeBadge.hidden = !pageContext.isYouTube;
+  els.emptyIcon.textContent = copy.icon;
+  els.emptyTitle.textContent = copy.title;
+  els.emptyDescription.textContent = copy.description;
+  els.brandSubtitle.textContent = pageContext.isYouTube
+    ? "Private video summaries on your device"
+    : "Private summaries on your device";
+  els.summarizeBtn.textContent = copy.buttonLabel;
+}
+
+function setLoading(isLoading, options = {}) {
+  const label =
+    options.label ||
+    (pageContext.isYouTube ? YOUTUBE_EMPTY.buttonLabel : DEFAULT_EMPTY.buttonLabel);
+  const statusMessage = options.statusMessage || "Generating summary…";
+
   els.summarizeBtn.disabled = isLoading;
   els.summarizeSelectionBtn.disabled = isLoading;
   els.skeletonWrap.classList.toggle("visible", isLoading);
   els.skeletonWrap.setAttribute("aria-hidden", String(!isLoading));
+  setStatus(statusMessage, isLoading);
 
   if (isLoading) {
     els.summarizeBtn.innerHTML =
-      '<span class="spinner" aria-hidden="true"></span>Working…';
+      '<span class="spinner" aria-hidden="true"></span> Working…';
     els.emptyState.style.display = "none";
     els.results.classList.remove("visible");
     els.resultActions.hidden = true;
+    els.keyMomentsCard.hidden = true;
   } else {
     els.summarizeBtn.textContent = label;
+    setStatus("", false);
   }
+}
+
+function renderKeyMoments(moments) {
+  els.keyMomentsList.innerHTML = "";
+
+  if (!moments?.length) {
+    els.keyMomentsCard.hidden = true;
+    return;
+  }
+
+  els.keyMomentsCard.hidden = false;
+  moments.forEach((moment) => {
+    const li = document.createElement("li");
+    const link = document.createElement("a");
+    link.className = "moment-link";
+    link.href = moment.url || "#";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = moment.timestamp;
+    link.title = `Jump to ${moment.timestamp}`;
+
+    const label = document.createElement("span");
+    label.className = "moment-label";
+    label.textContent = moment.label;
+
+    li.appendChild(link);
+    li.appendChild(label);
+    els.keyMomentsList.appendChild(li);
+  });
 }
 
 function renderList(target, items) {
@@ -95,11 +183,17 @@ function renderList(target, items) {
 
 function renderResults(data) {
   currentResult = data;
+  const isYouTube = data.sourceType === CONTENT_SOURCE_TYPES.YOUTUBE;
+
   els.tldrText.textContent = data.tldr || data.summary;
   els.summaryText.textContent = data.summary;
   renderList(els.bulletsList, data.bullets);
   renderList(els.takeawaysList, data.takeaways);
   renderList(els.actionsList, data.actionItems);
+  renderKeyMoments(data.keyMoments);
+
+  els.sourceChip.hidden = !isYouTube;
+  els.app.classList.toggle("is-youtube", isYouTube);
 
   els.engineChip.textContent = ENGINE_BADGES[data.engine] || ENGINE_BADGES.local;
   els.sentimentChip.textContent =
@@ -137,6 +231,11 @@ function buildCopyText(section) {
   if (section === "actions") {
     return currentResult.actionItems
       .map((item, i) => `${i + 1}. ${item}`)
+      .join("\n");
+  }
+  if (section === "moments") {
+    return (currentResult.keyMoments || [])
+      .map((moment) => `${moment.timestamp} — ${moment.label}`)
       .join("\n");
   }
   return "";
@@ -332,11 +431,13 @@ async function loadInitialState() {
   const settings = await sendMessage(MESSAGE_TYPES.GET_SETTINGS);
   applyTheme(settings.darkMode);
 
-  const [history, recent] = await Promise.all([
+  const [history, recent, context] = await Promise.all([
     sendMessage(MESSAGE_TYPES.GET_HISTORY),
     sendMessage(MESSAGE_TYPES.GET_RECENT_PAGES),
+    sendMessage(MESSAGE_TYPES.GET_PAGE_CONTEXT).catch(() => ({ isYouTube: false })),
   ]);
 
+  applyPageContext(context);
   renderHistory(history);
   renderRecentPages(recent);
   await loadSessionPayload();
@@ -344,7 +445,11 @@ async function loadInitialState() {
 
 async function runSummarize(type) {
   try {
-    setLoading(true);
+    setLoading(true, {
+      statusMessage: pageContext.isYouTube
+        ? "Extracting transcript…"
+        : "Generating summary…",
+    });
     const data = await sendMessage(type);
     renderResults(data);
     const history = await sendMessage(MESSAGE_TYPES.GET_HISTORY);
@@ -356,6 +461,7 @@ async function runSummarize(type) {
     els.emptyState.style.display = "block";
     els.results.classList.remove("visible");
     els.resultActions.hidden = true;
+    els.keyMomentsCard.hidden = true;
     showToast(error.message || "Summarization failed");
   } finally {
     setLoading(false);

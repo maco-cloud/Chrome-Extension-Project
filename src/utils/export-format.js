@@ -17,6 +17,15 @@ export function formatSummaryForClipboard(result) {
     "Bullet Summary:",
     ...(result.bullets || []).map((item) => `• ${item}`),
     "",
+    ...(result.keyMoments?.length
+      ? [
+          "Key Moments:",
+          ...result.keyMoments.map(
+            (moment) => `• ${moment.timestamp} — ${moment.label}`,
+          ),
+          "",
+        ]
+      : []),
     "Key Takeaways:",
     ...(result.takeaways || []).map((item, i) => `${i + 1}. ${item}`),
     "",
