@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "website/**"
+      - "docs/privacy.html"
+      - "docs/index.html"
       - ".github/workflows/deploy-website.yml"
   workflow_dispatch:
 
@@ -29,6 +31,9 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Sync docs privacy page into site
+        run: cp docs/privacy.html website/privacy.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
