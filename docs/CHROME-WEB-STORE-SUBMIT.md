@@ -1,79 +1,94 @@
-# Chrome Web Store — finish publishing
+# Chrome Web Store — unblock publishing
 
-## Privacy policy URL (paste in your listing)
+Google blocked you for three reasons. Fix **#2 and #3** in your browser (we cannot sign in as you). Fix **#1** with **Option A** or **Option B**.
 
-After GitHub Pages is enabled (step 2), use:
+---
+
+## 1. Privacy policy link not reachable
+
+Google needs a public **HTTPS** page that returns **200** (not 404). Use **one** of these:
+
+### Option A — GitHub Pages (recommended if you use GitHub)
+
+**Privacy URL to paste in the store:**
 
 ```
 https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html
 ```
 
-Test in an **Incognito** window before submitting. Google must get HTTP **200**, not 404.
+**You must enable Pages once (signed into GitHub):**
+
+1. https://github.com/maco-cloud/Chrome-Extension-Project/settings/pages  
+2. **Build and deployment** → **Source** → **GitHub Actions**  
+3. https://github.com/maco-cloud/Chrome-Extension-Project/actions/workflows/deploy-website.yml  
+4. **Run workflow** → branch `main` → **Run workflow**  
+5. Wait ~2 minutes for a green checkmark  
+6. Test in **Incognito**: the privacy URL above must load (not “Site not found”)
+
+**If Actions fails:** Settings → Pages → **Deploy from a branch** → `main` → folder **`/docs`** → Save. Same privacy URL.
+
+> Your repo can stay **private**; the Pages *site* is still public on `github.io`.
 
 ---
 
-## Step 1 — Push latest code to GitHub
+### Option B — Google Sites (fastest, same Google account as the store)
 
-If you use GitHub Desktop: **Fetch** → **Push origin**.
+No GitHub Pages required.
 
-Or in terminal (from project folder):
+1. Open https://sites.google.com → **Blank** site  
+2. Open [`privacy-google-sites-copy.txt`](privacy-google-sites-copy.txt) in this folder → copy all text → paste into the page  
+3. Title the site **QuickDigest AI Privacy**  
+4. Click **Publish** → set visibility to **Anyone on the web**  
+5. Copy the published URL (example: `https://sites.google.com/view/quickdigest-privacy/home`)  
+6. Paste **that URL** as the Chrome Web Store **Privacy policy** link  
 
-```powershell
-git push origin main
-```
-
----
-
-## Step 2 — Turn on GitHub Pages (free, ~2 min)
-
-1. Open: https://github.com/maco-cloud/Chrome-Extension-Project/settings/pages
-2. **Build and deployment** → **Source** → **GitHub Actions**
-3. Open: https://github.com/maco-cloud/Chrome-Extension-Project/actions/workflows/deploy-website.yml
-4. **Run workflow** → branch `main` → **Run workflow**
-5. Wait for green checkmark (~1–2 min)
-6. Return to **Settings → Pages** — confirm the site URL is shown
-
-**Fallback (if Actions fails):** On Settings → Pages, choose **Deploy from a branch** → branch `main` → folder **`/docs`** → Save. Then use the same privacy URL above.
+Test in Incognito before submitting.
 
 ---
 
-## Step 3 — Publisher contact email (required by Google)
+## 2. Contact email required
 
-You must do this yourself; we cannot access your Google account.
-
-1. Open: https://chrome.google.com/webstore/devconsole/settings
-2. Find **Contact email** / **Publisher contact email**
-3. Enter an email you control (Gmail is fine)
-4. Click **Save**
-5. Open that inbox and click Google’s **verification link**
-6. Return to the dashboard — email must show as **verified**
-
-Until this is verified, publishing stays blocked.
+1. Open https://chrome.google.com/webstore/devconsole/settings  
+2. Sign in with the same Google account you use for the developer account  
+3. Find **Contact email** / **Publisher contact email**  
+4. Enter an email you control (your Gmail is fine) → **Save**
 
 ---
 
-## Step 4 — Extension listing fields
+## 3. Verify contact email
+
+1. Check that email inbox (and spam) for a message from Google / Chrome Web Store  
+2. Click the **verification link**  
+3. Return to https://chrome.google.com/webstore/devconsole/settings — status must show **verified**
+
+Until verified, publishing stays blocked.
+
+---
+
+## Listing fields (after privacy URL works)
 
 | Field | Value |
 |-------|--------|
-| Privacy policy | `https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html` |
-| Support URL | `https://github.com/maco-cloud/Chrome-Extension-Project/issues` |
-| Mature content | No |
+| **Privacy policy** | GitHub Pages URL (Option A) **or** your Google Sites URL (Option B) |
+| **Support URL** | `https://github.com/maco-cloud/Chrome-Extension-Project/issues` |
+| **Mature content** | No |
 
 ---
 
-## Step 5 — Save draft and submit
+## Package zip for upload
 
-1. Paste the privacy URL in the listing **Privacy** section
-2. **Save draft**
-3. Fix any remaining errors
-4. **Submit for review**
+From repo root in PowerShell:
+
+```powershell
+.\scripts\build-store-zip.ps1
+```
+
+Upload `dist\quickdigest-ai-store.zip` in the developer dashboard.
 
 ---
 
-## If privacy URL still “not reachable”
+## Final steps
 
-- Wait 5–10 minutes after Pages deploy
-- Test URL in Incognito
-- Confirm repo is **Public** (private repos block public Pages for free tier in some cases)
-- Try fallback branch deploy from `/docs` (step 2)
+1. Paste working privacy URL → **Save draft**  
+2. Confirm email verified in Settings  
+3. **Submit for review**

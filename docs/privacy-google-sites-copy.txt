@@ -1,0 +1,53 @@
+Copy everything below into a new Google Site (sites.google.com → Blank → paste into text box → Publish).
+
+TITLE: QuickDigest AI Privacy Policy
+
+---
+
+QuickDigest AI Privacy Policy
+Last updated: May 18, 2026 (v2.1.0)
+
+QuickDigest AI ("the Extension") summarizes webpages on your device. This policy explains what data is handled and how.
+
+SUMMARY
+• No account required
+• No paid API keys
+• No cloud backend operated by us
+• Summaries are generated locally and/or with Chrome on-device AI when available
+
+DATA WE PROCESS
+When you click Summarize this page, the Extension:
+1. Reads the active tab URL and page title
+2. Extracts readable article text from the page
+3. Generates a summary on your device (local engine and/or Chrome on-device AI when supported)
+
+Article text is not sent to QuickDigest servers because we do not operate any.
+
+THIRD-PARTY PROCESSING
+• Local engine: processing stays on your device.
+• Chrome on-device AI: when enabled, Chrome may process text per Google's policies (https://policies.google.com/privacy).
+We do not send your content to paid third-party AI APIs.
+
+DATA STORED ON YOUR DEVICE
+Using chrome.storage.local, the Extension may store: preferences and recent summary history. You can clear history in Settings.
+
+DATA WE DO NOT COLLECT
+No sign-in, no ads, no sale of data, no passwords, no uploads to our servers.
+
+PERMISSIONS
+storage — settings and history on device
+activeTab — current tab when you invoke the extension
+scripting — extract page text on demand
+offscreen — Chrome on-device AI when available
+contextMenus — right-click summarize actions
+
+CHILDREN'S PRIVACY
+Not directed to children under 13.
+
+CHANGES
+Updates appear on this page and in the Chrome Web Store listing.
+
+CONTACT
+https://github.com/maco-cloud/Chrome-Extension-Project/issues
+
+© 2026 Maco Crafts
