@@ -4,6 +4,7 @@ import {
   STORAGE_KEYS,
   SUMMARY_ENGINES,
 } from "./constants.js";
+import { DEFAULT_SUMMARY_MODE } from "./summary-modes.js";
 
 export async function getFromStorage(keys) {
   return chrome.storage.local.get(keys);
@@ -16,12 +17,21 @@ export async function setInStorage(items) {
 export async function getSettings() {
   const data = await getFromStorage([
     STORAGE_KEYS.SUMMARY_ENGINE,
+    STORAGE_KEYS.SUMMARY_MODE,
     STORAGE_KEYS.DARK_MODE,
   ]);
   return {
     summaryEngine: data[STORAGE_KEYS.SUMMARY_ENGINE] || SUMMARY_ENGINES.AUTO,
-    darkMode: Boolean(data[STORAGE_KEYS.DARK_MODE]),
+    summaryMode: data[STORAGE_KEYS.SUMMARY_MODE] || DEFAULT_SUMMARY_MODE,
+    darkMode:
+      data[STORAGE_KEYS.DARK_MODE] !== undefined
+        ? Boolean(data[STORAGE_KEYS.DARK_MODE])
+        : true,
   };
+}
+
+export async function saveSummaryMode(modeId) {
+  await setInStorage({ [STORAGE_KEYS.SUMMARY_MODE]: modeId });
 }
 
 export async function saveSummaryEngine(engine) {
@@ -49,8 +59,9 @@ function sortHistory(history) {
   });
 }
 
-export async function addHistoryEntry(entry) {
+export async function addHistoryEntry(entry, maxItems = MAX_HISTORY_ITEMS) {
   const history = await getHistory();
+  const cap = Number.isFinite(maxItems) ? maxItems : MAX_HISTORY_ITEMS;
   const next = [
     {
       id: crypto.randomUUID(),
@@ -71,7 +82,7 @@ export async function addHistoryEntry(entry) {
       timestamp: Date.now(),
     },
     ...history.filter((item) => item.url !== entry.url),
-  ].slice(0, MAX_HISTORY_ITEMS);
+  ].slice(0, cap);
 
   await setInStorage({ [STORAGE_KEYS.HISTORY]: next });
   return sortHistory(next);

@@ -1,6 +1,7 @@
 import {
  CONTENT_SOURCE_TYPES,
  MAX_CONTENT_CHARS,
+ MAX_HISTORY_ITEMS,
  MIN_CONTENT_CHARS,
  MIN_SELECTION_CHARS,
  MESSAGE_TYPES,
@@ -8,12 +9,19 @@ import {
  SUMMARIZE_MODES,
  YOUTUBE_ERRORS,
 } from "../utils/constants.js";
+import { activateLicense, clearLicense, getLicenseSummary } from "../utils/license.js";
 import { checkChromeAiAvailability } from "../utils/chrome-ai.js";
 import {
   getCachedExtraction,
   setCachedExtraction,
 } from "../utils/extraction-cache.js";
+import {
+  assertCanSummarize,
+  getEntitlementState,
+  incrementDailyUsage,
+} from "../utils/entitlements.js";
 import { summarizeContent } from "../utils/summarizer.js";
+import { isModeAvailable } from "../utils/summary-modes.js";
 import {
   addHistoryEntry,
   clearHistory,
@@ -21,12 +29,14 @@ import {
   getHistory,
   getRecentPages,
   getSettings,
+  saveSummaryMode,
   toggleHistoryPin,
   trackRecentPage,
 } from "../utils/storage.js";
 import { isUnsupportedUrl, truncateText } from "../utils/url.js";
 import { countWords } from "../utils/text.js";
 import { isYouTubeWatchUrl } from "../utils/youtube.js";
+import { toUserMessage } from "../utils/user-messages.js";
 
 let summarizeInFlight = null;
 
@@ -35,18 +45,11 @@ function mapYouTubeError(code, fallback) {
 }
 
 function mapError(error) {
- const message = error?.message || "Something went wrong.";
-
- if (message.includes("Cannot access contents of")) {
- return "This page is restricted (try a normal website tab, not incognito-restricted pages).";
- }
- if (message.includes("Extensions cannot access")) {
- return "Extensions cannot access this page type.";
- }
- if (Object.values(YOUTUBE_ERRORS).includes(message)) {
- return message;
- }
- return message;
+  const message = error?.message || "";
+  if (Object.values(YOUTUBE_ERRORS).includes(message)) {
+    return message;
+  }
+  return toUserMessage(error, "Could not summarize this page. Refresh the page and try again.");
 }
 
 async function getActiveTab() {
@@ -174,6 +177,7 @@ function buildPayload(extracted, summaryResult) {
  sentiment: summaryResult.sentiment,
  language: summaryResult.language,
  engine: summaryResult.engine,
+ summaryMode: summaryResult.summaryMode,
  preview: truncateText(summaryResult.tldr || summaryResult.summary, 140),
  };
 }
@@ -184,7 +188,16 @@ async function runSummarize({ mode = SUMMARIZE_MODES.PAGE, selectedText = "" } =
   }
 
   summarizeInFlight = (async () => {
-    const settings = await getSettings();
+    await assertCanSummarize();
+    const [settings, entitlements] = await Promise.all([
+      getSettings(),
+      getEntitlementState(),
+    ]);
+
+    if (!isModeAvailable(settings.summaryMode, entitlements.isPro)) {
+      throw new Error("This summary mode requires Lifetime Pro.");
+    }
+
     const tab = await getActiveTab();
 
     let extracted;
@@ -210,10 +223,25 @@ async function runSummarize({ mode = SUMMARIZE_MODES.PAGE, selectedText = "" } =
       await trackRecentPage({ url: extracted.url, title: extracted.title });
     }
 
-    const summaryResult = await summarizeContent(extracted, settings.summaryEngine);
+    const summaryResult = await summarizeContent(
+      extracted,
+      settings.summaryEngine,
+      settings.summaryMode,
+    );
     const payload = buildPayload(extracted, summaryResult);
-    await addHistoryEntry(payload);
-    return payload;
+
+    const entAfterUsage = await incrementDailyUsage().then(async () =>
+      getEntitlementState(),
+    );
+
+    if (entAfterUsage.canSaveHistory) {
+      const maxHistory = entAfterUsage.isPro
+        ? MAX_HISTORY_ITEMS
+        : entAfterUsage.historyLimit;
+      await addHistoryEntry(payload, maxHistory);
+    }
+
+    return { ...payload, entitlements: entAfterUsage };
   })();
 
   try {
@@ -303,7 +331,7 @@ chrome.commands.onCommand.addListener(async (command) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (
     message?.type === MESSAGE_TYPES.CHROME_AI_SUMMARIZE ||
     message?.type === "CHROME_AI_STATUS"
@@ -313,10 +341,22 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   const run = async () => {
     switch (message?.type) {
- case MESSAGE_TYPES.SUMMARIZE:
- return runSummarize({ mode: SUMMARIZE_MODES.PAGE });
- case MESSAGE_TYPES.SUMMARIZE_SELECTION:
- return runSummarize({ mode: SUMMARIZE_MODES.SELECTION });
+ case MESSAGE_TYPES.SUMMARIZE: {
+        const payload = await runSummarize({ mode: SUMMARIZE_MODES.PAGE });
+        const fromExtensionUi = sender?.url?.includes("/popup/");
+        if (!fromExtensionUi) {
+          await openPopupWithResult(payload, null);
+        }
+        return payload;
+      }
+      case MESSAGE_TYPES.SUMMARIZE_SELECTION: {
+        const payload = await runSummarize({ mode: SUMMARIZE_MODES.SELECTION });
+        const fromExtensionUi = sender?.url?.includes("/popup/");
+        if (!fromExtensionUi) {
+          await openPopupWithResult(payload, null);
+        }
+        return payload;
+      }
  case MESSAGE_TYPES.GET_PAGE_CONTEXT: {
  const tab = await getActiveTab();
  return {
@@ -327,6 +367,18 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
  }
  case MESSAGE_TYPES.GET_SETTINGS:
         return getSettings();
+      case MESSAGE_TYPES.GET_ENTITLEMENTS:
+        return getEntitlementState();
+      case MESSAGE_TYPES.SET_SUMMARY_MODE:
+        await saveSummaryMode(message.modeId);
+        return getSettings();
+      case MESSAGE_TYPES.ACTIVATE_LICENSE:
+        return activateLicense(message.licenseKey || "");
+      case MESSAGE_TYPES.DEACTIVATE_LICENSE:
+        await clearLicense();
+        return { ok: true };
+      case MESSAGE_TYPES.GET_LICENSE:
+        return getLicenseSummary();
       case MESSAGE_TYPES.GET_HISTORY:
         return getHistory();
       case MESSAGE_TYPES.GET_RECENT_PAGES:

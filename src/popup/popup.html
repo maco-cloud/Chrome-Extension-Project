@@ -17,6 +17,9 @@
           </div>
           <span class="yt-badge" id="youtubeBadge" hidden>YouTube</span>
         </div>
+        <button class="btn-pro" id="upgradeBtn" type="button" hidden>
+          Unlock Pro
+        </button>
         <button
           class="icon-btn"
           id="settingsBtn"
@@ -28,6 +31,24 @@
         </button>
       </header>
 
+      <div class="plan-bar" id="planBar">
+        <div class="plan-meta">
+          <span class="plan-label" id="planLabel">Free</span>
+          <span class="plan-usage" id="planUsage">5 summaries left today</span>
+        </div>
+        <div class="plan-meter" aria-hidden="true">
+          <span class="plan-meter-fill" id="planMeterFill"></span>
+        </div>
+      </div>
+
+      <section class="mode-section" aria-label="Summary mode">
+        <div class="mode-header">
+          <h2 class="mode-title">Summary mode</h2>
+          <span class="mode-hint" id="modeHint">Quick Summary</span>
+        </div>
+        <div class="mode-grid" id="modeGrid" role="listbox" aria-label="Choose summary mode"></div>
+      </section>
+
       <div class="toolbar" role="toolbar" aria-label="Summary actions">
         <button class="btn-primary" id="summarizeBtn" type="button">
           Summarize page
@@ -38,21 +59,15 @@
       </div>
 
       <div class="toolbar-actions" id="resultActions" hidden>
+        <button class="btn-ghost" id="regenerateBtn" type="button">Regenerate</button>
+        <button class="btn-ghost" id="copyMarkdownBtn" type="button">Copy Markdown</button>
+        <button class="btn-ghost" id="shareBtn" type="button">Share</button>
         <button class="btn-ghost" id="copyAllBtn" type="button">Copy all</button>
+        <button class="btn-ghost" id="exportMdBtn" type="button">Export .md</button>
         <button class="btn-ghost" id="exportBtn" type="button">Export .txt</button>
         <button class="btn-ghost danger" id="clearHistoryBtn" type="button">
           Clear history
         </button>
-      </div>
-
-      <div class="search-row" id="historySearchRow" hidden>
-        <label class="sr-only" for="historySearch">Search history</label>
-        <input
-          id="historySearch"
-          type="search"
-          placeholder="Search saved summaries…"
-          autocomplete="off"
-        />
       </div>
 
       <div class="status-banner" id="statusBanner" hidden role="status" aria-live="polite">
@@ -155,17 +170,148 @@
           <h2 class="section-title">Saved summaries</h2>
           <div class="history-list" id="historyList"></div>
         </section>
+
+        <div class="search-row search-row-in-main" id="historySearchRow" hidden>
+          <label class="sr-only" for="historySearch">Search history</label>
+          <input
+            id="historySearch"
+            type="search"
+            placeholder="Search saved summaries…"
+            autocomplete="off"
+          />
+        </div>
+
+        <section class="history-locked" id="historyLocked" hidden>
+          <p id="historyLockedMsg">Limited history on Free. Lifetime Pro unlocks unlimited saves—one-time purchase, key by email.</p>
+          <button class="btn-pro-inline" type="button" data-open-upgrade>
+            Unlock Lifetime Pro
+          </button>
+          <button class="btn-pro-inline secondary" type="button" data-open-license>
+            Enter license key
+          </button>
+        </section>
       </main>
 
       <footer class="footer">
-        <span>QuickDigest AI v2.1</span>
+        <span id="footerVersion">QuickDigest AI</span>
         <span aria-hidden="true">·</span>
         <span>Privacy-first</span>
       </footer>
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="modal-backdrop" id="upgradeModal" hidden>
+      <div class="modal modal-upgrade" role="dialog" aria-labelledby="upgradeTitle" aria-modal="true">
+        <button class="modal-close" id="closeUpgradeModal" type="button" aria-label="Close">&times;</button>
+        <span class="upgrade-eyebrow">Lifetime · one-time payment</span>
+        <h2 id="upgradeTitle">Unlock Lifetime Pro</h2>
+        <p class="modal-lead purchase-promise">
+          <strong id="purchasePromiseHeadline">After checkout, your lifetime license key will be emailed to you.</strong>
+        </p>
+        <p class="modal-lead secondary" id="purchasePromiseDetail"></p>
+        <ul class="trust-points" id="trustPointsList" aria-label="Purchase guarantees"></ul>
+        <table class="plan-compare" aria-label="Free vs Lifetime Pro">
+          <thead>
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col">Free</th>
+              <th scope="col">Pro</th>
+            </tr>
+          </thead>
+          <tbody id="planCompareBody"></tbody>
+        </table>
+        <ol class="purchase-steps purchase-steps-rich" id="purchaseStepsList" aria-label="How purchase and activation works"></ol>
+        <button class="pricing-card pricing-card-single featured" id="checkoutLifetime" type="button">
+          <span class="pricing-badge" id="pricingBadge">Most popular</span>
+          <span class="pricing-label">Lifetime Pro</span>
+          <span class="pricing-price" id="pricingPrice">$14.99</span>
+          <span class="pricing-sub" id="pricingSub">One-time · no subscription</span>
+        </button>
+        <p class="checkout-note" id="checkoutNote">
+          You will complete payment on Stripe, then receive your license key by email.
+        </p>
+        <button class="btn-license-link" id="openLicenseFromUpgrade" type="button">
+          Already purchased? Activate with your license key
+        </button>
+        <p class="modal-footnote">
+          Legitimate secure checkout via Stripe. No hidden fees, no recurring charges.
+        </p>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="licenseModal" hidden>
+      <div class="modal modal-license" role="dialog" aria-labelledby="licenseTitle" aria-modal="true">
+        <button class="modal-close" id="closeLicenseModal" type="button" aria-label="Close">&times;</button>
+        <h2 id="licenseTitle">Activate your lifetime license</h2>
+        <p class="modal-lead" id="licenseLead"></p>
+        <p class="license-post-checkout" id="licensePostCheckout" hidden></p>
+        <div class="license-hint-box">
+          <strong id="licenseWhereTitle">Where is my license key?</strong>
+          <p id="licenseWhereHint"></p>
+        </div>
+        <ol class="activation-steps" id="activationStepsList" aria-label="Activation steps"></ol>
+        <label class="license-label" for="licenseKeyInput">Your license key</label>
+        <input
+          id="licenseKeyInput"
+          class="license-input"
+          type="text"
+          placeholder="QD-XXXX-XXXX-XXXX-XXXX"
+          autocomplete="off"
+          spellcheck="false"
+          inputmode="text"
+        />
+        <p class="license-error" id="licenseError" hidden role="alert"></p>
+        <p class="license-success" id="licenseSuccess" hidden role="status"></p>
+        <button class="btn-primary btn-full" id="activateLicenseBtn" type="button">
+          Activate Lifetime Pro
+        </button>
+        <p class="modal-footnote" id="licenseSupportFootnote">
+          Did not receive your key? Check spam, then contact support from your Stripe receipt.
+        </p>
+      </div>
+    </div>
+
+    <div class="pro-success-backdrop" id="proSuccessBackdrop" hidden aria-live="polite">
+      <div class="pro-success-card">
+        <div class="pro-success-icon" aria-hidden="true">✓</div>
+        <h2 id="proSuccessTitle">Lifetime Pro unlocked</h2>
+        <p id="proSuccessSubtitle">Pay once, use forever on this device.</p>
+        <button class="btn-primary btn-full" id="proSuccessDismiss" type="button">Start summarizing</button>
+      </div>
+    </div>
+
+    <div class="onboarding-backdrop" id="onboardingBackdrop" hidden>
+      <div class="onboarding-card" role="dialog" aria-labelledby="onboardingTitle" aria-modal="true">
+        <h2 id="onboardingTitle">Welcome to QuickDigest AI</h2>
+        <p class="onboarding-lead">
+          Turn any article or YouTube video into a clear summary—privately on your device.
+        </p>
+        <p class="onboarding-purchase-note">
+          Lifetime Pro is a one-time purchase. After checkout, your license key is emailed to you—no subscription.
+        </p>
+        <div class="onboarding-plans">
+          <div class="onboarding-plan">
+            <span class="onboarding-plan-name">Free</span>
+            <span class="onboarding-plan-detail">5 summaries/day · 3 modes</span>
+          </div>
+          <div class="onboarding-plan featured">
+            <span class="onboarding-plan-name">Lifetime Pro</span>
+            <span class="onboarding-plan-detail" id="onboardingProPrice">$14.99 once · all features</span>
+          </div>
+        </div>
+        <button class="btn-primary btn-full" id="onboardingStartBtn" type="button">
+          Try my first summary
+        </button>
+        <button class="btn-ghost btn-full" id="onboardingUpgradeBtn" type="button">
+          Unlock Lifetime Pro
+        </button>
+        <button class="btn-ghost btn-full subtle" id="onboardingDismissBtn" type="button">
+          Skip for now
+        </button>
+      </div>
+    </div>
 
     <script type="module" src="popup.js"></script>
   </body>
 </html>
+

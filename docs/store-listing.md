@@ -1,80 +1,46 @@
-# Chrome Web Store Listing — QuickDigest AI
-
-## Name
-QuickDigest AI
+# Chrome Web Store — AI Reply Anywhere
 
 ## Short description (132 chars max)
-Summarize any webpage instantly on your device. Free, private, no account, no API key, no tracking.
+
+AI reply & rewrite for Gmail, LinkedIn, Slack, X, Reddit & any textarea. No API keys — works instantly after install.
 
 ## Full description
-QuickDigest AI turns long articles into clear, actionable briefs in one click—entirely on your device.
 
-**Why users love it**
-- No sign-in, no credit card, no API keys
-- Private by design (no analytics, no tracking, no backend)
-- Works offline-first with a fast local summarization engine
-- Optional Chrome on-device AI when your browser supports it
+**AI Reply Anywhere** adds one-click AI replies and rewrites wherever you type — Gmail, LinkedIn, Slack, Twitter/X, Reddit, dating apps, and any website with a text box.
 
-**What you get**
-- TL;DR (one-line essence)
-- Full summary
-- Bullet summary
-- Key takeaways
-- Action items
-- Reading time estimate
-- Sentiment and language hints
+### Why users love it
+- **Zero setup** — no OpenAI account, no API keys, no technical config
+- **8 smart tones** — Professional, Friendly, Concise, Confident, Funny, Flirty, Rewrite, Grammar
+- **Works everywhere** — textareas, contenteditable, modern SPAs
+- **Premium upgrade** — unlimited generations, advanced tones, custom prompts
 
-**Power features**
-- Summarize the full page or only selected text
-- Copy sections or copy the entire brief
-- Export summaries as `.txt`
-- Pin favorites and search saved history
-- Keyboard shortcuts and right-click context menu
+### Free tier
+- 15 AI generations per day
+- Professional, Friendly, Concise tones
+- Optional “Generated with AI Reply Anywhere” signature
 
-**Built for trust**
-- Manifest V3
-- Least-privilege permissions
-- Local storage only
-- Open-source friendly architecture
+### Premium
+- Unlimited generations
+- All tones + custom prompt packs
+- Faster responses (when backend enabled)
+- No watermark
 
-Perfect for researchers, students, professionals, and anyone who wants the gist without the grind.
+### Privacy
+Text you choose to generate from is sent to **our secure API** for processing. We never store your passwords or ask for third-party AI keys.
 
-## Category
-Productivity
+## Keywords
 
-## Language
-English
+ai reply, gmail ai, linkedin ai writer, slack ai, rewrite text, ai compose, chrome extension ai, dating app replies, grammar fix, professional email ai
 
-## Tags / keywords
-summarizer, summary, article, reading, productivity, ai, privacy, offline, digest, research, student, browser, extension, local, free
+## Screenshot plan
 
-## Privacy
-- Single purpose: webpage summarization
-- No data sold
-- No remote servers operated by the developer
-- User data stored locally on device
+1. **Hero** — Gmail compose with floating AI sparkle button + tone toolbar
+2. **LinkedIn** — comment box with Professional tone result
+3. **Popup** — usage meter + Premium upgrade CTA
+4. **Settings** — site toggles + preferred tone
+5. **Slack** — thread reply with Concise tone
+6. **Before/After** — messy draft → polished rewrite
 
-## Privacy policy URL (Chrome Web Store)
-https://sites.google.com/view/maco-apps/privacy-policy
+## Onboarding copy (first install)
 
-## Homepage URL (Chrome Web Store)
-https://sites.google.com/view/maco-apps/quickdigest-ai
-
-## Support URL (Chrome Web Store)
-https://github.com/maco-cloud/Chrome-Extension-Project/issues
-
-## Permission justifications
-| Permission | Justification |
-|------------|---------------|
-| storage | Save settings and summary history locally |
-| activeTab | Read the current tab only when user invokes the extension |
-| scripting | Extract readable article text on demand |
-| offscreen | Run Chrome on-device summarizer when available |
-| contextMenus | "Summarize page/selection" right-click actions |
-
-## Suggested screenshots (capture manually)
-1. Popup empty state with branding
-2. Full summary results with TL;DR and bullets
-3. Dark mode view
-4. Settings page with engine selector
-5. History with pinned item and search
+> Welcome to AI Reply Anywhere! Click the ✨ button next to any text field on Gmail, LinkedIn, Slack, and more. Free users get 15 replies/day — upgrade anytime for unlimited AI.

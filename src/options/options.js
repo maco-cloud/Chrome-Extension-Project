@@ -4,6 +4,8 @@ import {
   SUMMARY_ENGINES,
 } from "../utils/constants.js";
 import { sendMessage } from "../utils/messaging.js";
+import { getEntitlementState } from "../utils/entitlements.js";
+import { LICENSE_MESSAGES } from "../utils/user-messages.js";
 import {
   getSettings,
   saveDarkMode,
@@ -18,6 +20,11 @@ const els = {
   clearHistoryBtn: document.getElementById("clearHistoryBtn"),
   status: document.getElementById("status"),
   version: document.getElementById("version"),
+  licenseKeyField: document.getElementById("licenseKeyField"),
+  activateLicenseOptionsBtn: document.getElementById("activateLicenseOptionsBtn"),
+  removeLicenseBtn: document.getElementById("removeLicenseBtn"),
+  licenseStatus: document.getElementById("licenseStatus"),
+  planStatus: document.getElementById("planStatus"),
 };
 
 function applyTheme(darkMode) {
@@ -31,18 +38,43 @@ function setStatus(message) {
   els.status.textContent = message;
 }
 
+async function refreshPlanUi() {
+  const [state, license] = await Promise.all([
+    getEntitlementState(),
+    sendMessage(MESSAGE_TYPES.GET_LICENSE).catch(() => null),
+  ]);
+
+  if (license?.maskedKey) {
+    els.licenseStatus.textContent = `License: ${license.maskedKey} (Lifetime Pro)`;
+    els.licenseStatus.classList.add("ok");
+  } else {
+    els.licenseStatus.textContent = "No license on this device.";
+    els.licenseStatus.classList.remove("ok");
+  }
+
+  if (state.isPro) {
+    els.planStatus.textContent = "Plan: Lifetime Pro";
+  } else if (state.licenseExpired) {
+    els.planStatus.textContent = "Plan: Free (license inactive)";
+  } else {
+    els.planStatus.textContent = "Plan: Free";
+  }
+}
+
 async function refreshChromeAiStatus() {
   try {
     const status = await sendMessage(MESSAGE_TYPES.GET_ENGINE_STATUS);
     if (status.available) {
-      els.chromeAiStatus.textContent = `Chrome on-device AI: ${status.reason}`;
+      els.chromeAiStatus.textContent = "On-device AI: available on this browser";
       els.chromeAiStatus.classList.add("ok");
     } else {
-      els.chromeAiStatus.textContent = `Chrome on-device AI: not available (${status.reason}). Local engine will be used.`;
+      els.chromeAiStatus.textContent =
+        "On-device AI unavailable on this device. Local processing is used automatically.";
       els.chromeAiStatus.classList.remove("ok");
     }
-  } catch (error) {
-    els.chromeAiStatus.textContent = `Chrome on-device AI: unavailable (${error.message}).`;
+  } catch {
+    els.chromeAiStatus.textContent =
+      "On-device AI unavailable on this device. Local processing is used automatically.";
     els.chromeAiStatus.classList.remove("ok");
   }
 }
@@ -53,8 +85,44 @@ async function init() {
   els.engineSelect.value = settings.summaryEngine;
   els.darkModeToggle.checked = settings.darkMode;
   applyTheme(settings.darkMode);
+  await refreshPlanUi();
   await refreshChromeAiStatus();
 }
+
+els.activateLicenseOptionsBtn.addEventListener("click", async () => {
+  const key = els.licenseKeyField.value.trim();
+  if (!key) {
+    setStatus(LICENSE_MESSAGES.empty);
+    return;
+  }
+
+  els.activateLicenseOptionsBtn.disabled = true;
+  setStatus(LICENSE_MESSAGES.activating);
+
+  try {
+    const result = await sendMessage(MESSAGE_TYPES.ACTIVATE_LICENSE, {
+      licenseKey: key,
+    });
+    if (!result?.ok) {
+      setStatus(result?.message || LICENSE_MESSAGES.invalid);
+      return;
+    }
+    setStatus(result.message || LICENSE_MESSAGES.success);
+    els.licenseKeyField.value = "";
+    await refreshPlanUi();
+  } catch (error) {
+    setStatus(error.message || LICENSE_MESSAGES.network);
+  } finally {
+    els.activateLicenseOptionsBtn.disabled = false;
+  }
+});
+
+els.removeLicenseBtn.addEventListener("click", async () => {
+  await sendMessage(MESSAGE_TYPES.DEACTIVATE_LICENSE);
+  els.licenseKeyField.value = "";
+  setStatus("License removed from this device.");
+  await refreshPlanUi();
+});
 
 els.engineSelect.addEventListener("change", async (event) => {
   const value = event.target.value;

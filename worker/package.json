@@ -1,0 +1,17 @@
+{
+  "name": "quickdigest-license-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stripe webhook + license validation API for QuickDigest AI",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.114.17"
+  },
+  "dependencies": {
+    "login": "^0.8.0"
+  }
+}

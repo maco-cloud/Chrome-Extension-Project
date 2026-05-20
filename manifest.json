@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "QuickDigest AI",
-  "version": "2.1.0",
-  "description": "Free, private webpage summaries on your device—no account, no API key, no tracking.",
+  "version": "2.7.0",
+  "description": "Summarize articles and YouTube on your device. Free tier included; lifetime Pro unlocks all modes, exports, and unlimited history.",
   "action": {
     "default_popup": "src/popup/popup.html",
     "default_title": "QuickDigest AI",
@@ -37,6 +37,15 @@
     }
   },
   "permissions": ["storage", "activeTab", "scripting", "offscreen", "contextMenus"],
+  "host_permissions": ["https://*.workers.dev/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/watch*"],
+      "js": ["src/content/youtube-cta.js"],
+      "css": ["src/styles/youtube-cta.css"],
+      "run_at": "document_idle"
+    }
+  ],
   "icons": {
     "16": "src/assets/icons/icon16.png",
     "48": "src/assets/icons/icon48.png",

@@ -7,15 +7,40 @@
     <link rel="stylesheet" href="../styles/options.css" />
   </head>
   <body>
-    <div class="page">
+    <main class="page">
       <header class="hero">
         <h1>QuickDigest AI Settings</h1>
         <p>
-          No sign-in, no API keys, no credit card. Summaries run on your device
-          using free local processing, with optional Chrome on-device AI when
-          your browser supports it.
+          Private summaries on your device. No account required for basic use.
         </p>
       </header>
+
+      <section class="panel">
+        <h2>Lifetime Pro</h2>
+        <p class="panel-copy">
+          Lifetime Pro is a one-time $14.99 purchase (no subscription). After checkout, your license key is emailed to you—paste it below to unlock Pro on this device.
+        </p>
+        <div class="field">
+          <label for="licenseKeyField">License key</label>
+          <input
+            id="licenseKeyField"
+            type="text"
+            placeholder="Enter your license key"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="activateLicenseOptionsBtn" type="button">
+            Activate license
+          </button>
+          <button class="btn btn-secondary" id="removeLicenseBtn" type="button">
+            Remove license
+          </button>
+        </div>
+        <p class="engine-status" id="licenseStatus">No license on this device.</p>
+        <p class="engine-status" id="planStatus">Plan: Free</p>
+      </section>
 
       <section class="panel">
         <h2>Summary engine</h2>
@@ -23,15 +48,14 @@
           <label for="engineSelect">Preferred method</label>
           <select id="engineSelect">
             <option value="auto">Auto (best available)</option>
-            <option value="local">Local (always free, works everywhere)</option>
-            <option value="chrome-ai">Chrome on-device AI (when available)</option>
+            <option value="local">Local (always works)</option>
+            <option value="chrome-ai">On-device AI (when available)</option>
           </select>
           <small id="engineHelp">
-            Auto tries Chrome on-device AI first, then falls back to local
-            extraction instantly.
+            Auto uses on-device AI when available, then local processing.
           </small>
         </div>
-        <p class="engine-status" id="chromeAiStatus">Checking Chrome AI availability…</p>
+        <p class="engine-status" id="chromeAiStatus">Checking on-device AI…</p>
       </section>
 
       <section class="panel">
@@ -56,9 +80,7 @@
 
       <section class="panel">
         <h2>History</h2>
-        <p class="panel-copy">
-          Remove all locally saved summaries from this extension.
-        </p>
+        <p class="panel-copy">Remove all locally saved summaries from this extension.</p>
         <button class="btn btn-danger" id="clearHistoryBtn" type="button">
           Clear history
         </button>
@@ -66,7 +88,7 @@
 
       <p class="status" id="status" role="status" aria-live="polite"></p>
       <p class="version" id="version"></p>
-    </div>
+    </main>
 
     <script type="module" src="options.js"></script>
   </body>

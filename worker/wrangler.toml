@@ -1,0 +1,25 @@
+name = "quickdigest-license-api"
+main = "index.js"
+compatibility_date = "2024-11-01"
+
+# Create KV: wrangler kv namespace create LICENSES
+# Paste the id below:
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "7c622679214e4948bda7d657aac0419c"
+preview_id = "REPLACE_WITH_PREVIEW_KV_NAMESPACE_ID"
+
+[vars]
+SUPPORT_EMAIL = "maco70090@gmail.com"
+FROM_NAME = "QuickDigest AI"
+# Set after Resend verifies your domain:
+FROM_EMAIL = "QuickDigest AI <onboarding@resend.dev>"
+PRODUCT_NAME = "QuickDigest AI Lifetime Pro"
+MAX_ACTIVATIONS_PER_LICENSE = "3"
+RATE_LIMIT_VALIDATE = "30"
+RATE_LIMIT_WINDOW_SEC = "60"
+
+# Secrets (wrangler secret put <NAME>):
+# STRIPE_WEBHOOK_SECRET
+# RESEND_API_KEY
+# REVOKE_SECRET

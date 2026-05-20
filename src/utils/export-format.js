@@ -1,44 +1,111 @@
-import { SENTIMENT_LABELS } from "./constants.js";
+import { SENTIMENT_LABELS, SHARE_FOOTER } from "./constants.js";
 
-export function formatSummaryForClipboard(result) {
+function baseSections(result) {
+  return {
+    title: result.title || "Summary",
+    url: result.url || "",
+    tldr: result.tldr || result.summary,
+    summary: result.summary || "",
+    bullets: result.bullets || [],
+    takeaways: result.takeaways || [],
+    actionItems: result.actionItems || [],
+    keyMoments: result.keyMoments || [],
+    readingTimeMinutes: result.readingTimeMinutes,
+    sentiment: SENTIMENT_LABELS[result.sentiment] || result.sentiment,
+    language: (result.language || "en").toUpperCase(),
+    engine: result.engine || "local",
+    summaryMode: result.summaryMode,
+    summaryModeLabel: result.summaryModeLabel,
+  };
+}
+
+export function formatSummaryForClipboard(result, { includeFooter = true } = {}) {
   if (!result) {
     return "";
   }
 
+  const s = baseSections(result);
+  const modeLine = s.summaryMode
+    ? `Mode: ${s.summaryModeLabel || s.summaryMode}`
+    : "";
   const lines = [
-    `QuickDigest AI — ${result.title || "Summary"}`,
-    result.url ? `URL: ${result.url}` : "",
+    `QuickDigest AI — ${s.title}`,
+    s.url ? `URL: ${s.url}` : "",
+    modeLine,
     "",
-    `TL;DR: ${result.tldr || result.summary}`,
+    `TL;DR: ${s.tldr}`,
     "",
     "Summary:",
-    result.summary || "",
+    s.summary,
     "",
     "Bullet Summary:",
-    ...(result.bullets || []).map((item) => `• ${item}`),
+    ...s.bullets.map((item) => `• ${item}`),
     "",
-    ...(result.keyMoments?.length
+    ...(s.keyMoments.length
       ? [
           "Key Moments:",
-          ...result.keyMoments.map(
+          ...s.keyMoments.map(
             (moment) => `• ${moment.timestamp} — ${moment.label}`,
           ),
           "",
         ]
       : []),
     "Key Takeaways:",
-    ...(result.takeaways || []).map((item, i) => `${i + 1}. ${item}`),
+    ...s.takeaways.map((item, i) => `${i + 1}. ${item}`),
     "",
     "Action Items:",
-    ...(result.actionItems || []).map((item, i) => `${i + 1}. ${item}`),
+    ...s.actionItems.map((item, i) => `${i + 1}. ${item}`),
     "",
-    `Reading time: ~${result.readingTimeMinutes} min`,
-    `Sentiment: ${SENTIMENT_LABELS[result.sentiment] || result.sentiment}`,
-    `Language: ${(result.language || "en").toUpperCase()}`,
-    `Engine: ${result.engine || "local"}`,
+    `Reading time: ~${s.readingTimeMinutes} min`,
+    `Sentiment: ${s.sentiment}`,
+    `Language: ${s.language}`,
+    `Engine: ${s.engine}`,
   ];
 
+  if (includeFooter) {
+    lines.push("", SHARE_FOOTER);
+  }
+
   return lines.filter((line, index) => line !== "" || index < 4).join("\n");
+}
+
+export function formatSummaryMarkdown(result, { includeFooter = true } = {}) {
+  if (!result) {
+    return "";
+  }
+
+  const s = baseSections(result);
+  const modeLine = s.summaryMode
+    ? `**Mode:** ${s.summaryModeLabel || s.summaryMode}\n\n`
+    : "";
+  const parts = [
+    `# ${s.title}`,
+    s.url ? `\n[Source](${s.url})\n` : "",
+    modeLine,
+    `## TL;DR\n\n${s.tldr}\n`,
+    `## Summary\n\n${s.summary}\n`,
+    s.bullets.length
+      ? `## Bullets\n\n${s.bullets.map((b) => `- ${b}`).join("\n")}\n`
+      : "",
+    s.keyMoments.length
+      ? `## Key Moments\n\n${s.keyMoments
+          .map((m) => `- [${m.timestamp}](${m.url || "#"}) — ${m.label}`)
+          .join("\n")}\n`
+      : "",
+    s.takeaways.length
+      ? `## Takeaways\n\n${s.takeaways.map((t, i) => `${i + 1}. ${t}`).join("\n")}\n`
+      : "",
+    s.actionItems.length
+      ? `## Action Items\n\n${s.actionItems.map((a, i) => `${i + 1}. ${a}`).join("\n")}\n`
+      : "",
+    `---\n\n*~${s.readingTimeMinutes} min read · ${s.sentiment} · ${s.language}*`,
+  ];
+
+  if (includeFooter) {
+    parts.push(`\n\n*${SHARE_FOOTER}*`);
+  }
+
+  return parts.filter(Boolean).join("\n");
 }
 
 export function formatSummaryForDownload(result) {

@@ -2,104 +2,87 @@ import {
   MESSAGE_TYPES,
   normalizeSummarizerOutputLanguage,
 } from "../utils/constants.js";
-import { summarizeLocally } from "../utils/local-summarizer.js";
-import { countWords } from "../utils/text.js";
+import {
+  buildAiInputWithPrompt,
+  getAiLengthHint,
+  getModeDefinition,
+} from "../config/summary-prompts.js";
 
-function parseBullets(text) {
-  return text
-    .split(/\n+/)
-    .map((line) => line.replace(/^[\s\-*•\d.)]+/, "").trim())
-    .filter((line) => line.length > 12);
-}
-
-function buildSummarizerOptions(language) {
+function buildSummarizerOptions(language, modeId) {
   const outputLanguage = normalizeSummarizerOutputLanguage(language);
+  const length = getAiLengthHint(modeId);
   return {
     type: "key-points",
     format: "markdown",
-    length: "medium",
+    length,
     outputLanguage,
   };
 }
 
-async function getSummarizer(language = "en") {
+async function getSummarizer(language = "en", modeId = "quick") {
   if (typeof Summarizer === "undefined") {
-    throw new Error("Chrome on-device Summarizer API is not available.");
+    throw new Error("AI_UNAVAILABLE");
   }
 
-  const options = buildSummarizerOptions(language);
+  const options = buildSummarizerOptions(language, modeId);
   const availability = await Summarizer.availability(options);
   if (availability === "unavailable") {
-    throw new Error("Chrome on-device AI is unavailable on this device.");
+    throw new Error("AI_UNAVAILABLE");
   }
 
   return Summarizer.create(options);
 }
 
-async function summarizeWithChromeAi(text, language = "en") {
-  const summarizer = await getSummarizer(language);
-  const output = await summarizer.summarize(text);
-  if (typeof summarizer.destroy === "function") {
-    await summarizer.destroy();
+async function summarizeWithChromeAi(text, language = "en", modeId = "quick", title = "") {
+  const summarizer = await getSummarizer(language, modeId);
+  const input = buildAiInputWithPrompt({ text, title, language }, modeId);
+  let output = "";
+  try {
+    output = await summarizer.summarize(input);
+  } finally {
+    if (typeof summarizer.destroy === "function") {
+      try {
+        await summarizer.destroy();
+      } catch {
+        // ignore cleanup errors
+      }
+    }
   }
 
-  const bullets = parseBullets(output);
-  const summary = bullets.slice(0, 2).join(" ") || output.trim();
-  const takeaways = bullets.length ? bullets.slice(0, 6) : [summary];
-  const outputLanguage = normalizeSummarizerOutputLanguage(language);
-  const local = summarizeLocally({
-    text,
-    wordCount: countWords(text),
-    language: outputLanguage,
-  });
-
+  const mode = getModeDefinition(modeId);
   return {
-    tldr: local.tldr || summary.slice(0, 120),
-    summary,
-    bullets: bullets.length ? bullets : local.bullets,
-    takeaways,
-    actionItems: local.actionItems,
-    readingTimeMinutes: local.readingTimeMinutes,
-    sentiment: local.sentiment,
-    language: outputLanguage,
+    rawText: (output || "").trim(),
+    summary: (output || "").trim(),
+    summaryMode: mode.id,
+    summaryModeLabel: mode.label,
   };
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "CHROME_AI_STATUS") {
     if (typeof Summarizer === "undefined") {
-      sendResponse({
-        available: false,
-        reason: "Requires Chrome 138+ with on-device AI enabled.",
-      });
+      sendResponse({ available: false, reason: "unavailable" });
       return;
     }
 
-    const statusOptions = buildSummarizerOptions("en");
+    const statusOptions = buildSummarizerOptions("en", "quick");
     Summarizer.availability(statusOptions)
       .then((status) => {
         sendResponse({
           available: status === "available" || status === "readily",
-          reason:
-            status === "available" || status === "readily"
-              ? "Ready"
-              : `Status: ${status}`,
-          status,
-          outputLanguage: statusOptions.outputLanguage,
+          reason: status === "available" || status === "readily" ? "ready" : "unavailable",
         });
       })
-      .catch((error) => {
-        sendResponse({ available: false, reason: error.message });
+      .catch(() => {
+        sendResponse({ available: false, reason: "unavailable" });
       });
     return;
   }
 
   if (message?.type === MESSAGE_TYPES.CHROME_AI_SUMMARIZE) {
-    summarizeWithChromeAi(message.text, message.language)
+    summarizeWithChromeAi(message.text, message.language, message.summaryMode, message.title)
       .then((data) => sendResponse({ ok: true, data }))
-      .catch((error) =>
-        sendResponse({ ok: false, error: error.message || "Chrome AI failed." }),
-      );
+      .catch(() => sendResponse({ ok: false, error: "AI_UNAVAILABLE" }));
     return true;
   }
 

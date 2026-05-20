@@ -1,104 +1,78 @@
-# QuickDigest AI
+# AI Reply Anywhere
 
-QuickDigest AI is a **privacy-first** Chrome Extension (Manifest V3) that summarizes webpages on your device—no account, no API key, no tracking, no backend.
+SaaS-style Chrome extension: AI reply & rewrite on Gmail, LinkedIn, Slack, X, Reddit, dating apps, and any textarea. **No user API keys** — all AI traffic goes through your backend.
 
-**Version 2.1.0** — YouTube transcript summaries + Chrome Web Store quality release.
+## Stack
 
-## Features
+- Manifest V3 + [@crxjs/vite-plugin](https://crxjs.dev/vite-plugin)
+- React 18 + TypeScript + Vite
+- Tailwind CSS + Framer Motion + Lucide
+- Stripe-ready billing (Checkout URLs via env)
+- Mock auth + mock Premium for development
 
-- **YouTube transcript summaries** on watch pages — TL;DR, key moments with timestamps, bullets, takeaways, and action items (no external APIs)
-- **One-click page summaries** with TL;DR, summary, bullets, takeaways, and action items
-- **Summarize selected text** (popup, context menu, `Ctrl+Shift+Y`)
-- **Local engine** (always free) + optional **Chrome on-device AI**
-- Reading time, sentiment, and language hints
-- Copy section / **copy all** / **export `.txt`**
-- History with **pin**, **search**, and **recent pages**
-- Dark mode, keyboard shortcuts, premium UI
-- Extraction cache and robust error handling
+## Quick start
 
-## Tech stack
-
-- Manifest V3, vanilla HTML/CSS/JS (ES modules)
-- Service worker + content extractor + offscreen Chrome AI worker
-- `chrome.storage.local` + `chrome.storage.session`
-
-## Project structure
-
-```text
-manifest.json
-website/          maco-crafts.gg brand site (GitHub Pages)
-docs/
-  CHANGELOG.md
-  privacy-policy.md
-  store-listing.md
-src/
-  background/     service-worker, offscreen AI
-  content/        extractor.js, youtube-extractor.js
-  popup/          UI
-  options/        settings
-  styles/
-  utils/          text, storage, summarizer, cache, export
+```bash
+npm install
+cp .env.example .env
+npm run dev
 ```
 
-## Install
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. **Load unpacked** → select the `dist` folder (created after first `npm run dev` or `npm run build`)
 
-QuickDigest AI is distributed through the **Chrome Web Store** only (not via this repository).
+## Production build
 
-When the listing is live, install from the store link in [docs/store-listing.md](docs/store-listing.md).
+```bash
+npm run build
+npm run zip   # creates dist/ai-reply-anywhere-store.zip
+```
 
-This repository is for development and store compliance documentation. See [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md).
+## Environment variables
 
-## Usage
+| Variable | Purpose |
+|----------|---------|
+| `VITE_API_BASE_URL` | Your backend `/generate` + `/analytics` |
+| `VITE_STRIPE_CHECKOUT_MONTHLY_URL` | Stripe Checkout session URL |
+| `VITE_STRIPE_CHECKOUT_YEARLY_URL` | Annual plan checkout |
+| `VITE_SUPABASE_URL` | Auth (wire when ready) |
+| `VITE_SUPABASE_ANON_KEY` | Auth anon key |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Client-only Stripe key |
 
-| Action | How |
-|--------|-----|
-| Summarize page | Extension icon → **Summarize page** or `Ctrl+Shift+S` |
-| Summarize YouTube video | Open a YouTube watch page → **Summarize video** (same shortcut) |
-| Summarize selection | Select text → **Selection** or `Ctrl+Shift+Y` |
-| Context menu | Right-click page or selection |
-| Copy / export | Buttons appear after summarization |
-| Settings | Gear icon → engine, dark mode, shortcuts help |
+**Never** put OpenAI/Anthropic secret keys in the extension.
 
-## Summary engines
+## Architecture
 
-| Engine | Description |
-|--------|-------------|
-| **Auto** | Chrome on-device AI when available, else local |
-| **Local** | Always works; on-device extractive summarization |
-| **Chrome AI** | Built-in Summarizer API (Chrome 138+, device dependent) |
+```
+src/
+├── background/service-worker.ts   # API, limits, billing messages
+├── content/                       # MutationObserver + floating UI
+├── popup/                         # Dashboard
+├── options/                       # Settings
+└── shared/
+    ├── api/ai-client.ts           # Provider-agnostic backend client
+    ├── entitlements/              # Free vs Premium gating
+    ├── billing/stripe.ts          # Checkout helpers
+    ├── analytics/                 # Local + beacon to API
+    └── storage/                   # chrome.storage.local
+```
 
-## Permissions
+## Backend contract
 
-- `storage`, `activeTab`, `scripting`, `offscreen`, `contextMenus`
-- **No** external host permissions
+See **[docs/BACKEND.md](docs/BACKEND.md)** for `/generate`, `/analytics`, Stripe webhooks, and security notes.
 
-## Publishing
+Quick example — `POST {VITE_API_BASE_URL}/generate` with `Authorization: Bearer <userId>` and body `{ tone, context, draft, siteHost, customPrompt?, maxTokens? }`.
 
-See [docs/store-listing.md](docs/store-listing.md) for copy, keywords, and screenshot ideas.
+## Dev tools
 
-**Privacy policy (Chrome Web Store):** https://sites.google.com/view/maco-apps/privacy-policy  
-**Portfolio site:** https://sites.google.com/view/maco-apps  
-Source: [docs/privacy-policy.md](docs/privacy-policy.md)
+- Popup → **Dev: Enable mock Premium**
+- Options → **Enable mock Premium (dev)**
 
-## Troubleshooting
+## Chrome Web Store
 
-| Issue | Fix |
-|-------|-----|
-| Not enough content | Use a text-rich article |
-| YouTube: no transcript | Use a video with captions/subtitles enabled |
-| YouTube: still loading | Wait for the player to finish loading, then retry |
-| Restricted page | Avoid `chrome://`, Web Store, PDFs |
-| Chrome AI unavailable | Use Auto or Local in Settings |
-| Incognito | Enable extension in incognito on `chrome://extensions` |
-| Shortcuts | Customize at `chrome://extensions/shortcuts` |
-
-## Roadmap (architecture-ready)
-
-- PDF summarization
-- Optional AI provider plugins
-- Multi-language output
-- Offline packaged models
+See [docs/STORE-LISTING.md](docs/STORE-LISTING.md) for descriptions, keywords, and screenshot plan.
 
 ## License
 
-Provided as-is for development and publishing by the repository owner.
+Proprietary — Maco Cloud / your entity.

@@ -1,5 +1,8 @@
 export const EXTENSION_NAME = "QuickDigest AI";
-export const EXTENSION_VERSION = "2.1.0";
+export const EXTENSION_VERSION = "2.7.0";
+export const FREE_DAILY_SUMMARY_LIMIT = 5;
+export const FREE_HISTORY_LIMIT = 3;
+export const SHARE_FOOTER = "Summarized with QuickDigest AI";
 export const MAX_HISTORY_ITEMS = 50;
 export const MAX_RECENT_PAGES = 12;
 export const MAX_CONTENT_CHARS = 16000;
@@ -13,6 +16,8 @@ export function normalizeSummarizerOutputLanguage(language) {
   return SUMMARIZER_OUTPUT_LANGUAGES.includes(code) ? code : "en";
 }
 export const EXTRACTION_CACHE_TTL_MS = 5 * 60 * 1000;
+/** Keep Pro active when API is unreachable if last successful check is within this window. */
+export const LICENSE_OFFLINE_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
 export const OFFSCREEN_DOCUMENT_PATH = "src/background/offscreen.html";
 
 export const SUMMARY_ENGINES = {
@@ -22,8 +27,8 @@ export const SUMMARY_ENGINES = {
 };
 
 export const ENGINE_BADGES = {
-  local: "Local engine",
-  "chrome-ai": "Chrome on-device AI",
+  local: "Local processing",
+  "chrome-ai": "On-device AI",
   auto: "Auto",
 };
 
@@ -36,9 +41,17 @@ export const SENTIMENT_LABELS = {
 
 export const STORAGE_KEYS = {
   SUMMARY_ENGINE: "summaryEngine",
+  SUMMARY_MODE: "summaryMode",
   DARK_MODE: "darkMode",
   HISTORY: "summaryHistory",
   RECENT_PAGES: "recentPages",
+  PRO_ENTITLEMENT: "proEntitlement",
+  LICENSE: "license",
+  LICENSE_ACTIVATION: "licenseActivation",
+  DAILY_USAGE: "dailyUsage",
+  ONBOARDING_SEEN: "onboardingSeen",
+  DEVICE_ID: "deviceId",
+  PRO_UNLOCK_SHOWN: "proUnlockShown",
 };
 
 export const SESSION_KEYS = {
@@ -56,6 +69,11 @@ export const MESSAGE_TYPES = {
   TOGGLE_PIN: "TOGGLE_PIN",
   GET_ENGINE_STATUS: "GET_ENGINE_STATUS",
   GET_RECENT_PAGES: "GET_RECENT_PAGES",
+  GET_ENTITLEMENTS: "GET_ENTITLEMENTS",
+  SET_SUMMARY_MODE: "SET_SUMMARY_MODE",
+  ACTIVATE_LICENSE: "ACTIVATE_LICENSE",
+  DEACTIVATE_LICENSE: "DEACTIVATE_LICENSE",
+  GET_LICENSE: "GET_LICENSE",
   CHROME_AI_SUMMARIZE: "CHROME_AI_SUMMARIZE",
 };
 
