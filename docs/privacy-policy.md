@@ -78,5 +78,5 @@ We may update this policy as the Extension evolves. Updates will be reflected in
 
 For privacy questions:
 
-- Web: https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html
+- Web: https://sites.google.com/view/maco-apps/privacy-policy
 - GitHub: https://github.com/maco-cloud/Chrome-Extension-Project/issues

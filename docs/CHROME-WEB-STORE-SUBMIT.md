@@ -31,18 +31,19 @@ https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html
 
 ---
 
-### Option B — Google Sites (fastest, same Google account as the store)
+### Option B — Maco Apps Google Site (recommended)
 
-No GitHub Pages required.
+Build the portfolio using [`google-sites/MACO-APPS-BUILD-GUIDE.md`](google-sites/MACO-APPS-BUILD-GUIDE.md).
 
-1. Open https://sites.google.com → **Blank** site  
-2. Open [`privacy-google-sites-copy.txt`](privacy-google-sites-copy.txt) in this folder → copy all text → paste into the page  
-3. Title the site **QuickDigest AI Privacy**  
-4. Click **Publish** → set visibility to **Anyone on the web**  
-5. Copy the published URL (example: `https://sites.google.com/view/quickdigest-privacy/home`)  
-6. Paste **that URL** as the Chrome Web Store **Privacy policy** link  
+**Privacy URL for Chrome Web Store:**
 
-Test in Incognito before submitting.
+```
+https://sites.google.com/view/maco-apps/privacy-policy
+```
+
+1. Follow the build guide (replace the Event template).  
+2. Publish → **Anyone on the web**.  
+3. Test the privacy URL in Incognito before submitting.
 
 ---
 

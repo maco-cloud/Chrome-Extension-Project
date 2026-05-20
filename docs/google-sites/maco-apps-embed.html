@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maco Apps</title>
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --surface: #14141c;
+        --text: #f5f5f7;
+        --muted: #a1a1a6;
+        --accent: #0a84ff;
+        --accent-soft: rgba(10, 132, 255, 0.15);
+        --border: rgba(255, 255, 255, 0.08);
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      a {
+        color: var(--accent);
+      }
+      .hero {
+        padding: 4rem 1.5rem 3rem;
+        text-align: center;
+        background: radial-gradient(ellipse 80% 60% at 50% -20%, var(--accent-soft), transparent);
+      }
+      .hero h1 {
+        font-size: clamp(2.2rem, 6vw, 3.2rem);
+        margin: 0 0 0.75rem;
+        letter-spacing: -0.03em;
+      }
+      .hero p {
+        color: var(--muted);
+        max-width: 32rem;
+        margin: 0 auto 1.75rem;
+        font-size: 1.1rem;
+      }
+      .btn {
+        display: inline-block;
+        padding: 0.7rem 1.4rem;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        margin: 0.25rem;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-secondary {
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 1.25rem 4rem;
+      }
+      section {
+        margin-top: 3rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+      }
+      .card h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.05rem;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+      }
+      .prose {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .prose h2 {
+        color: var(--text);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+      }
+      th,
+      td {
+        border: 1px solid var(--border);
+        padding: 0.5rem 0.65rem;
+        text-align: left;
+      }
+      th {
+        color: var(--text);
+      }
+      footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+        border-top: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero" id="home">
+      <p class="badge">Maco Apps</p>
+      <h1>Privacy-first apps &amp; extensions</h1>
+      <p>
+        Software that runs on your device — no accounts, no cloud backends, no tracking by
+        design.
+      </p>
+      <a class="btn btn-primary" href="#apps">See our apps</a>
+      <a class="btn btn-secondary" href="#quickdigest">QuickDigest AI</a>
+    </header>
+
+    <div class="wrap">
+      <section id="apps">
+        <h2>Our apps</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge">Available · v2.1.0</span>
+            <h3>QuickDigest AI</h3>
+            <p>
+              Summarize articles and YouTube videos in Chrome. Local engine + optional
+              on-device AI. Free and private.
+            </p>
+            <p style="margin-top: 0.75rem"><a href="#quickdigest">Learn more →</a></p>
+          </article>
+          <article class="card">
+            <span class="badge">In progress</span>
+            <h3>Maco Crafts web</h3>
+            <p>
+              Brand site and product pages (maco-crafts.gg) — built alongside the extension
+              release pipeline.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>What we&apos;ve built</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>YouTube summaries</h3>
+            <p>Transcript extraction, key moments with timestamps, no external APIs.</p>
+          </article>
+          <article class="card">
+            <h3>Manifest V3 extension</h3>
+            <p>Service worker, content scripts, offscreen AI, extraction cache.</p>
+          </article>
+          <article class="card">
+            <h3>Store-ready release</h3>
+            <p>Privacy policy, permission justifications, store zip packaging.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="quickdigest">
+        <h2>QuickDigest AI</h2>
+        <div class="card">
+          <p class="prose">
+            One-click TL;DR, bullets, takeaways, and action items for any article. On YouTube:
+            caption-based summaries with clickable key moments. Summarize selected text via
+            shortcut or right-click. Export as .txt. History with pin and search.
+          </p>
+          <p class="prose" style="margin-top: 1rem">
+            <strong>Install:</strong>
+            <a href="https://chromewebstore.google.com/">Chrome Web Store</a> (when listing is
+            live)
+          </p>
+          <p class="prose">
+            <strong>Support:</strong>
+            <a href="https://github.com/maco-cloud/Chrome-Extension-Project/issues">GitHub Issues</a>
+          </p>
+        </div>
+      </section>
+
+      <section id="privacy" class="prose">
+        <h2>QuickDigest AI — Privacy Policy</h2>
+        <p><strong>Last updated:</strong> May 18, 2026 (v2.1.0)</p>
+        <p>
+          QuickDigest AI summarizes webpages on your device. No account, no paid API keys, no
+          cloud backend operated by us.
+        </p>
+        <h2>Data we process</h2>
+        <p>
+          On summarize: read tab URL/title, extract article text or YouTube captions, generate
+          summary locally and/or via Chrome on-device AI. Content is not sent to our servers.
+        </p>
+        <h2>Data stored on device</h2>
+        <p>Preferences and optional summary history in chrome.storage.local. Clear anytime in Settings.</p>
+        <h2>Data we do not collect</h2>
+        <p>No sign-in, no ads, no sale of data, no upload of page content to our servers.</p>
+        <h2>Permissions</h2>
+        <table>
+          <tr>
+            <th>Permission</th>
+            <th>Purpose</th>
+          </tr>
+          <tr>
+            <td>storage</td>
+            <td>Settings and history on device</td>
+          </tr>
+          <tr>
+            <td>activeTab</td>
+            <td>Current tab when you invoke the extension</td>
+          </tr>
+          <tr>
+            <td>scripting</td>
+            <td>Extract readable text on demand</td>
+          </tr>
+          <tr>
+            <td>offscreen</td>
+            <td>Chrome on-device AI when available</td>
+          </tr>
+          <tr>
+            <td>contextMenus</td>
+            <td>Right-click summarize actions</td>
+          </tr>
+        </table>
+        <h2>Contact</h2>
+        <p>
+          <a href="https://github.com/maco-cloud/Chrome-Extension-Project/issues">GitHub Issues</a>
+        </p>
+      </section>
+    </div>
+
+    <footer>© 2026 Maco Apps · Maco Crafts</footer>
+  </body>
+</html>

@@ -76,7 +76,8 @@ This repository is for development and store compliance documentation. See [docs
 
 See [docs/store-listing.md](docs/store-listing.md) for copy, keywords, and screenshot ideas.
 
-**Privacy policy (Chrome Web Store):** https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html  
+**Privacy policy (Chrome Web Store):** https://sites.google.com/view/maco-apps/privacy-policy  
+**Portfolio site:** https://sites.google.com/view/maco-apps  
 Source: [docs/privacy-policy.md](docs/privacy-policy.md)
 
 ## Troubleshooting
