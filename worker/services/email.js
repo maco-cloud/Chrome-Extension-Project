@@ -1,11 +1,5 @@
 import { buildPurchaseEmailHtml, buildPurchaseEmailText } from "../templates/purchase-email.js";
-
-/** Truncate for logs only — never log secrets or full HTML. */
-function previewForLog(text, maxLen = 400) {
-  const s = String(text || "").replace(/\s+/g, " ").trim();
-  if (s.length <= maxLen) return s;
-  return `${s.slice(0, maxLen)}…`;
-}
+import { maskEmail, paymentLog } from "../utils/logger.js";
 
 /**
  * Send license email via Resend.
@@ -15,18 +9,17 @@ function previewForLog(text, maxLen = 400) {
 export async function sendLicenseEmail(env, { to, licenseKey }) {
   const apiKey = env.RESEND_API_KEY;
   if (!apiKey || String(apiKey).length < 10) {
-    console.error(
-      "[quickdigest-email] Missing or invalid RESEND_API_KEY — run: wrangler secret put RESEND_API_KEY",
-    );
+    paymentLog("error", "email.config_missing", { service: "resend" });
     throw new Error("RESEND_NOT_CONFIGURED");
   }
 
   if (!to || typeof to !== "string") {
-    console.error("[quickdigest-email] Invalid recipient address (missing or not a string)");
+    paymentLog("error", "email.invalid_recipient", {});
     throw new Error("INVALID_EMAIL_RECIPIENT");
   }
 
   const recipient = to.trim();
+  const recipientMasked = maskEmail(recipient);
 
   const from = env.FROM_EMAIL || "QuickDigest AI <onboarding@resend.dev>";
   const supportEmail = env.SUPPORT_EMAIL || "maco70090@gmail.com";
@@ -54,13 +47,12 @@ export async function sendLicenseEmail(env, { to, licenseKey }) {
       text,
     });
   } catch (err) {
-    console.error("[quickdigest-email] Malformed email payload:", err?.message || err);
-    throw new Error(`MALFORMED_EMAIL_PAYLOAD:${err?.message || " stringify failed"}`);
+    paymentLog("error", "email.payload_error", {
+      recipient: recipientMasked,
+      reason: String(err?.message || "stringify_failed").slice(0, 80),
+    });
+    throw new Error(`MALFORMED_EMAIL_PAYLOAD:${err?.message || "stringify failed"}`);
   }
-
-  console.log(
-    `[quickdigest-email] Sending via Resend (recipient=${recipient}, fromConfigured=yes)`,
-  );
 
   let response;
   try {
@@ -73,10 +65,10 @@ export async function sendLicenseEmail(env, { to, licenseKey }) {
       body: payloadJson,
     });
   } catch (err) {
-    console.error(
-      "[quickdigest-email] Resend fetch failed:",
-      err?.message || String(err),
-    );
+    paymentLog("error", "email.network_error", {
+      recipient: recipientMasked,
+      reason: String(err?.message || "network").slice(0, 80),
+    });
     throw new Error(`RESEND_FETCH_FAILED:${err?.message || "network"}`);
   }
 
@@ -97,30 +89,22 @@ export async function sendLicenseEmail(env, { to, licenseKey }) {
       [resendMessage, resendName].filter(Boolean).join(" — ") ||
       `HTTP_${httpStatus}`;
 
-    console.error(
-      "[quickdigest-email] Resend rejection:",
-      JSON.stringify({
-        recipient,
-        httpStatus,
-        resendMessage,
-        resendName,
-        bodyPreview: previewForLog(rawBody),
-      }),
-    );
+    paymentLog("error", "email.send_failed", {
+      recipient: recipientMasked,
+      httpStatus,
+      reason: combinedDetail.slice(0, 120),
+    });
 
     throw new Error(`RESEND_SEND_FAILED:${combinedDetail}`);
   }
 
   const emailId = parsed?.id || null;
 
-  console.log(
-    "[quickdigest-email] License email sent successfully",
-    JSON.stringify({
-      recipient,
-      httpStatus,
-      resendEmailId: emailId || "unknown_id",
-    }),
-  );
+  paymentLog("info", "email.sent", {
+    recipient: recipientMasked,
+    httpStatus,
+    resendEmailId: emailId || "unknown",
+  });
 
   return { emailId };
 }

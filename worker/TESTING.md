@@ -15,11 +15,16 @@ cd worker
 npx wrangler tail --format pretty
 ```
 
-Trigger a test checkout, then watch for:
+Trigger a test checkout, then watch for structured `[quickdigest]` lines in order:
 
-- `[quickdigest-email] License email sent successfully` — OK (includes `httpStatus`, `resendEmailId`, `recipient`)
-- `[quickdigest-email] Resend rejection:` — HTTP status + Resend `message`/`name` + body preview (no secrets)
-- `[quickdigest-email] Missing or invalid RESEND_API_KEY` — set the secret
+1. `webhook.route_matched` — router reached handler
+2. `webhook.received` — handler entry
+3. `webhook.signature_check_started` → `webhook.signature_verified`
+4. `webhook.event_parsed` → `webhook.checkout_started` (if checkout event)
+5. `email.sent` or `email.send_failed`
+6. `webhook.return` — every exit path (check `status` + `reason`)
+
+If you only see Stripe HTTP 200 but **no** `webhook.received`, redeploy (`wrangler deploy`) or verify the webhook URL matches the deployed Worker.
 
 ## Validate license (manual)
 
