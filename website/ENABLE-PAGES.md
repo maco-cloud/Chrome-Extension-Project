@@ -14,6 +14,7 @@ Code is already on `main`. Do this in your browser:
 
 - Home: https://maco-cloud.github.io/Chrome-Extension-Project/
 - Product: https://maco-cloud.github.io/Chrome-Extension-Project/quickdigest.html
-- Privacy: https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html
+- **Privacy (Chrome Web Store):** https://maco-cloud.github.io/Chrome-Extension-Project/privacy-policy.html
+- Legacy alias: https://maco-cloud.github.io/Chrome-Extension-Project/privacy.html (redirects)
 
-Use those in the Chrome Web Store until you own `maco-crafts.gg`.
+Use **privacy-policy.html** in the Chrome Web Store until you own `maco-crafts.gg`.
