@@ -33,7 +33,7 @@ jobs:
       - name: Build site
         run: |
           mkdir -p _site
-          cp privacy-policy.html privacy-policy.css .nojekyll _site/
+          cp docs/privacy-policy.html docs/privacy-policy.css docs/.nojekyll _site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

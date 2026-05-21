@@ -38,8 +38,8 @@ The policy files must be on `main` **and** Pages must be turned on. A 404 usuall
 ### Option B — Deploy from branch
 
 1. **Settings** → **Pages** → **Source:** **Deploy from a branch**
-2. **Branch:** `main` · **Folder:** `/ (root)` → **Save**
-3. Wait 1–5 minutes.
+2. **Branch:** `main` · **Folder:** `/docs` → **Save** (privacy files live in `docs/`)
+3. Wait 2–10 minutes for the first build.
 
 ### Verify
 

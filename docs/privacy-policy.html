@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Privacy Policy for QuickDigest AI — Chrome extension for on-device article and YouTube summarization."
+    />
+    <title>Privacy Policy — QuickDigest AI</title>
+    <link rel="stylesheet" href="privacy-policy.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%230a84ff' width='32' height='32' rx='8'/%3E%3Ctext x='16' y='22' font-size='14' font-weight='700' fill='white' text-anchor='middle' font-family='system-ui,sans-serif'%3EQ%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#policy">Skip to policy</a>
+
+    <header class="site-header">
+      <div class="site-header-inner">
+        <div class="brand-icon" aria-hidden="true">QD</div>
+        <div>
+          <p class="brand-title">QuickDigest AI</p>
+          <p class="brand-subtitle">Privacy Policy</p>
+        </div>
+      </div>
+    </header>
+
+    <main id="policy">
+      <h1>QuickDigest AI Privacy Policy</h1>
+
+      <p class="meta">
+        <strong>Last updated:</strong> May 20, 2026<br />
+        <strong>Extension version:</strong> 2.7.0<br />
+        <strong>Publisher:</strong> Maco Apps / Maco Crafts<br />
+        <strong>Product:</strong> QuickDigest AI (Google Chrome extension)
+      </p>
+
+      <p class="lead">
+        QuickDigest AI (&quot;the Extension,&quot; &quot;we,&quot; &quot;us&quot;) summarizes articles and
+        YouTube videos in your browser. This Privacy Policy explains what information is processed,
+        where it goes, and what we do not collect. By installing or using the Extension, you agree to
+        this policy.
+      </p>
+
+      <section class="summary-card" aria-labelledby="summary-heading">
+        <h2 id="summary-heading">At a glance</h2>
+        <ul>
+          <li><strong>No account required</strong> to use the free tier</li>
+          <li><strong>Summaries are generated on your device</strong> (local engine and/or Chrome on-device AI)</li>
+          <li><strong>We do not sell your data</strong> and do not show third-party advertising</li>
+          <li><strong>Payments</strong> are handled by Stripe; we never see your card number in the Extension</li>
+          <li><strong>Lifetime Pro</strong> uses license-key validation via our Cloudflare Worker; purchase emails are sent via Resend</li>
+        </ul>
+      </section>
+
+      <h2>1. What QuickDigest AI does</h2>
+      <p>
+        The Extension lets you summarize web articles and YouTube videos into structured formats (e.g.
+        quick summary, bullet points, study notes). A free tier includes daily limits; a one-time
+        Lifetime Pro purchase unlocks additional modes and features. Summarization runs in your browser;
+        optional paid features use third-party services listed below only when you choose to pay or
+        activate a license.
+      </p>
+
+      <h2>2. Summarization and on-device processing</h2>
+      <p>When you click <strong>Summarize</strong> (page, selection, or YouTube), the Extension may:</p>
+      <ol>
+        <li>Read the <strong>active tab URL</strong> and page title</li>
+        <li>Extract readable article text or YouTube captions visible on the page</li>
+        <li>
+          Generate a summary <strong>on your device</strong> using:
+          <ul>
+            <li>
+              <strong>Local engine</strong> — extractive summarization that stays in the browser
+            </li>
+            <li>
+              <strong>Chrome on-device AI</strong> (optional) — when your browser and device support
+              it, Google Chrome may process text with on-device models under
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer"
+                >Google&apos;s Privacy Policy</a
+              >
+            </li>
+          </ul>
+        </li>
+      </ol>
+      <p>
+        Article and transcript text used for summarization is <strong>not sent to Maco Apps servers</strong>
+        for summarization. We do not operate a cloud summarization API and do not send your page content
+        to OpenAI or other paid third-party summarization providers.
+      </p>
+
+      <h2>3. Data stored on your device</h2>
+      <p>Using <code>chrome.storage.local</code>, the Extension may store locally on your device:</p>
+      <ul>
+        <li>Theme and summarization engine preferences</li>
+        <li>Summary history (title, URL, preview, summary content, timestamps)</li>
+        <li>Daily usage counters for the free tier</li>
+        <li>
+          <strong>Lifetime Pro:</strong> license key (after you enter it), activation status, a
+          lightweight device identifier used for license binding, and related entitlement state
+        </li>
+      </ul>
+      <p>
+        This data remains on your device unless you clear it in Extension settings or uninstall the
+        Extension. We do not sync this local storage to our own servers.
+      </p>
+
+      <h2>4. Payments (Stripe)</h2>
+      <p>
+        If you purchase <strong>Lifetime Pro</strong>, the Extension opens a
+        <strong>Stripe Payment Link</strong> in a new browser tab. Stripe processes payment information
+        (e.g. card details, billing email) according to
+        <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer"
+          >Stripe&apos;s Privacy Policy</a
+        >. The Extension does <strong>not</strong> collect, store, or transmit payment card numbers or
+        bank details.
+      </p>
+      <p>
+        After a successful purchase, Stripe may share your checkout email and session metadata with our
+        backend via a signed webhook so we can issue your license.
+      </p>
+
+      <h2>5. License validation (Cloudflare Worker)</h2>
+      <p>
+        When you activate a Lifetime Pro license key, the Extension sends a request to our
+        <strong>Cloudflare Worker</strong> license API
+        (<code>https://quickdigest-license-api.maco70090.workers.dev</code>) over HTTPS. The request
+        may include:
+      </p>
+      <ul>
+        <li>Your license key (format <code>QD-XXXX-XXXX-XXXX-XXXX</code>)</li>
+        <li>A hashed or opaque <strong>device fingerprint</strong> generated locally to bind the license to your browser installation</li>
+      </ul>
+      <p>
+        This request does <strong>not</strong> include article text, summaries, browsing history, or
+        passwords. Processing is governed by
+        <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer"
+          >Cloudflare&apos;s Privacy Policy</a
+        >
+        as infrastructure provider.
+      </p>
+
+      <h2>6. Purchase emails (Resend)</h2>
+      <p>
+        After payment, our Worker may send your license key to the email address provided at Stripe
+        checkout using <strong>Resend</strong>, an email delivery service. Resend processes recipient
+        email addresses and message delivery according to
+        <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer"
+          >Resend&apos;s Privacy Policy</a
+        >. We use email only for license delivery and support related to your purchase—not for marketing
+        newsletters unless you separately opt in outside this Extension.
+      </p>
+
+      <h2>7. Extension permissions</h2>
+      <p>The Extension requests the following Chrome permissions:</p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Permission</th>
+            <th scope="col">Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>storage</code></td>
+            <td>Save settings, summary history, usage limits, and license state locally</td>
+          </tr>
+          <tr>
+            <td><code>activeTab</code></td>
+            <td>Access the current tab only when you invoke summarization</td>
+          </tr>
+          <tr>
+            <td><code>scripting</code></td>
+            <td>Extract readable page content on demand</td>
+          </tr>
+          <tr>
+            <td><code>offscreen</code></td>
+            <td>Run Chrome on-device AI summarization when available</td>
+          </tr>
+          <tr>
+            <td><code>contextMenus</code></td>
+            <td>Right-click actions to summarize the page or a selection</td>
+          </tr>
+          <tr>
+            <td><code>host_permissions: https://*.workers.dev/*</code></td>
+            <td>Connect to our license validation API after purchase</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        The Extension includes a content script on YouTube watch pages only to show an optional
+        summarize call-to-action; it does not run on all websites by default.
+      </p>
+
+      <h2>8. Information we collect</h2>
+      <p>Depending on how you use the Extension, we may process:</p>
+      <ul>
+        <li>
+          <strong>License and device data</strong> — license key and device fingerprint sent to our
+          Worker when you activate or re-validate Pro
+        </li>
+        <li>
+          <strong>Purchase-related data</strong> — email address and Stripe checkout identifiers
+          received via webhook to issue and support your license
+        </li>
+        <li>
+          <strong>Support communications</strong> — information you voluntarily send to
+          <a href="mailto:maco70090@gmail.com">maco70090@gmail.com</a>
+        </li>
+      </ul>
+      <p>
+        Summarization content and browsing history are processed locally in your browser as described
+        in Section 2 and are not uploaded to Maco Apps for summarization.
+      </p>
+
+      <h2 id="not-collected">9. Information we do not collect</h2>
+      <div class="not-collected">
+        <p>The Extension and our summarization flow do <strong>not</strong>:</p>
+        <ul>
+          <li>Require sign-in or a Maco Apps account for the free tier</li>
+          <li>Sell or rent your personal information</li>
+          <li>Display third-party advertising or ad trackers</li>
+          <li>Run analytics or behavioral advertising SDKs in the Extension</li>
+          <li>Collect passwords, payment card numbers, or arbitrary form field contents</li>
+          <li>Upload full page content to Maco Apps servers for summarization</li>
+          <li>Request access to all URLs in the background without user action</li>
+        </ul>
+      </div>
+
+      <h2>10. No sale of personal data; no third-party ads</h2>
+      <p>
+        We do <strong>not</strong> sell your personal information. We do <strong>not</strong> use the
+        Extension to serve third-party advertisements. Service providers (Stripe, Cloudflare, Resend)
+        act only to provide payment, infrastructure, and transactional email services described above.
+      </p>
+
+      <h2>11. Data retention</h2>
+      <ul>
+        <li>
+          <strong>On your device:</strong> history and settings persist until you clear them or uninstall
+        </li>
+        <li>
+          <strong>License server:</strong> license records are retained as needed to validate Pro access
+          and prevent fraud; you may contact us to request deletion where applicable law allows
+        </li>
+        <li>
+          <strong>Email provider logs:</strong> governed by Resend&apos;s retention practices
+        </li>
+      </ul>
+
+      <h2>12. Security</h2>
+      <ul>
+        <li>Summarization is designed to run on-device</li>
+        <li>License API traffic uses HTTPS</li>
+        <li>Stripe webhooks are verified with signing secrets stored only on our server, not in the Extension</li>
+        <li>Keep Chrome updated for the latest on-device AI security features</li>
+      </ul>
+
+      <h2>13. Children&apos;s privacy</h2>
+      <p>
+        The Extension is not directed to children under 13 (or the minimum age in your jurisdiction).
+        We do not knowingly collect personal information from children.
+      </p>
+
+      <h2>14. International users</h2>
+      <p>
+        Our service providers may process data in the United States or other countries. By using paid
+        features, you acknowledge that license and payment-related data may be processed where those
+        providers operate.
+      </p>
+
+      <h2>15. Changes to this policy</h2>
+      <p>
+        We may update this Privacy Policy when the Extension or our practices change. The
+        &quot;Last updated&quot; date at the top will change, and continued use after updates constitutes
+        acceptance where permitted by law. Material changes may also be noted in the Chrome Web Store
+        listing.
+      </p>
+
+      <h2>16. Contact</h2>
+      <p>
+        For privacy questions, data requests, or support:<br />
+        <strong>Email:</strong>
+        <a href="mailto:maco70090@gmail.com">maco70090@gmail.com</a><br />
+        <strong>GitHub:</strong>
+        <a
+          href="https://github.com/maco-cloud/Chrome-Extension-Project"
+          target="_blank"
+          rel="noopener noreferrer"
+          >github.com/maco-cloud/Chrome-Extension-Project</a
+        >
+      </p>
+
+      <footer>
+        <p>&copy; 2026 Maco Apps. All rights reserved.</p>
+      </footer>
+    </main>
+  </body>
+</html>
