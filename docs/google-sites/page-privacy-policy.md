@@ -1,6 +1,9 @@
 # Privacy Policy — HTML for Google Sites
 
-**Chrome Web Store URL (after publish):**  
+**Chrome Web Store URL (GitHub Pages — recommended):**  
+`https://maco-cloud.github.io/Chrome-Extension-Project/privacy-policy.html`
+
+**Legacy (Google Sites):**  
 `https://sites.google.com/view/maco-apps/privacy-policy`
 
 ## How to paste

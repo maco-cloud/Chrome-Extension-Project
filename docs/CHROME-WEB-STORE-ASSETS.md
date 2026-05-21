@@ -1,4 +1,12 @@
-# Chrome Web Store listing — QuickDigest AI v2.6
+# Chrome Web Store listing — QuickDigest AI v2.7
+
+## Privacy policy URL (required)
+
+```
+https://maco-cloud.github.io/Chrome-Extension-Project/privacy-policy.html
+```
+
+Enable GitHub Pages from `main` / root — see `docs/GITHUB-PAGES-PRIVACY.md`.
 
 ## Short description
 

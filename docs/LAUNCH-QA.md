@@ -63,7 +63,7 @@ Test on: news article, blog, Wikipedia, Reddit thread, long doc, short page, You
 - [ ] Manifest V3, version matches `constants.js`
 - [ ] Permissions: `storage`, `activeTab`, `scripting`, `offscreen`, `contextMenus` only
 - [ ] No remote code execution
-- [ ] Privacy policy URL live in store listing
+- [ ] Privacy policy URL live: `https://maco-cloud.github.io/Chrome-Extension-Project/privacy-policy.html`
 - [ ] Icons 16/48/128 present
 
 ## Build
