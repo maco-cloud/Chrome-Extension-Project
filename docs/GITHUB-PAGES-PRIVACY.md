@@ -24,18 +24,30 @@ Use this exact URL in the Chrome Web Store **Privacy policy** field.
 
 ## GitHub Pages setup (one-time)
 
-1. Push `privacy-policy.html`, `privacy-policy.css`, and `.nojekyll` to `main` on GitHub.
-2. Open the repo: **github.com/maco-cloud/Chrome-Extension-Project**
-3. **Settings** → **Pages** (left sidebar)
-4. Under **Build and deployment** → **Source**:
-   - **Deploy from a branch**
-   - **Branch:** `main`
-   - **Folder:** `/ (root)`
-5. Click **Save**
-6. Wait 1–5 minutes for the first deploy (GitHub shows the site URL on the Pages settings page)
-7. Verify in a private/incognito window (no login required):
-   - Open `https://maco-cloud.github.io/Chrome-Extension-Project/privacy-policy.html`
-   - Confirm **QuickDigest AI** title, Stripe / Worker / Resend sections, and support email
+The policy files must be on `main` **and** Pages must be turned on. A 404 usually means Pages is not enabled yet.
+
+### Option A — GitHub Actions (recommended)
+
+1. Confirm `privacy-policy.html`, `privacy-policy.css`, `.nojekyll`, and `.github/workflows/deploy-privacy-pages.yml` are on `main`.
+2. Open **github.com/maco-cloud/Chrome-Extension-Project** → **Settings** → **Pages**.
+3. Under **Build and deployment** → **Source**, choose **GitHub Actions** (not “Deploy from a branch”).
+4. Go to **Actions** → run **Deploy privacy policy to GitHub Pages** (or push any commit to `main` to trigger it).
+5. Wait until the workflow shows a green checkmark (1–3 minutes).
+6. On the **Pages** settings screen, copy the live site URL (shown after first successful deploy).
+
+### Option B — Deploy from branch
+
+1. **Settings** → **Pages** → **Source:** **Deploy from a branch**
+2. **Branch:** `main` · **Folder:** `/ (root)` → **Save**
+3. Wait 1–5 minutes.
+
+### Verify
+
+Open in an incognito window (no login):
+
+`https://maco-cloud.github.io/Chrome-Extension-Project/privacy-policy.html`
+
+You should see the dark **QuickDigest AI Privacy Policy** page—not GitHub’s generic “404 / There isn’t a GitHub Pages site here.”
 
 ### Optional: custom domain
 
